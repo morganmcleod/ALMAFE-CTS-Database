@@ -11,10 +11,15 @@ if not projectRoot in sys.path:
 # and change to that directory:
 os.chdir(projectRoot)
 
-from Database.Tests.Unit.CartConfigs import test_CartConfigs
-from Database.Tests.Unit.CartTests import test_CartTests
-from Database.Tests.Unit.TestTypes import test_TestTypes
-from Database.Tests.Unit.MixerTests import test_MixerTests
+from DBBand6Cart.Tests.Unit.CartConfigs import test_CartConfigs
+from DBBand6Cart.Tests.Unit.CartTests import test_CartTests
+from DBBand6Cart.Tests.Unit.TestTypes import test_TestTypes
+from DBBand6Cart.Tests.Unit.MixerTests import test_MixerTests
+from DBBand6Cart.Tests.Unit.Mixers import test_Mixers
+from DBBand6Cart.Tests.Unit.Preamps import test_Preamps
         
 if __name__ == "__main__":
-    unittest.main() # run all tests
+    try:
+        unittest.main() # run all tests
+    except SystemExit:
+        pass

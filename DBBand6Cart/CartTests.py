@@ -1,51 +1,13 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from pydantic import BaseModel
-from datetime import datetime
-from typing import List
-
-# schema for a CartTests record
-class CartTest(BaseModel):
-    key: int = None     # keyCartTests
-    configId: int       # fkCartAssembly
-    isSelection: bool = False
-    fkSoftwareVersion: int = 0
-    fkTestType: int
-    fkTestSystem: int = 0
-    timeStamp: datetime = datetime.now()
-    description: str = ''
-    operator: str = ''
-    testSysName: str = '' # DewarID
-    measSwName: str = ''
-    measSwVersion: str = ''
-    
-    def makeSwVersionString(self):
-        swVer = self.measSwName if self.measSwName else ''
-        if self.measSwVersion:
-            if swVer:
-                swVer += ' '
-            swVer += self.measSwVersion
-        elif self.fkSoftwareVersion:
-            if swVer:
-                swVer += ' '
-            swVer += 'fk:' + str(self.fkSoftwareVersion)
-        return swVer   
+from .schemas.CartTest import CartTest, COLUMNS
+from typing import List, Optional
 
 class CartTests(object):
     '''
     Create, Read, Update, Delete table dbBand6Cart.CartTests records
     Each record represents a set of measurement data, normally taken as a single measurement operation.
     '''
-    columns = ('keyCartTest',
-               'fkCartAssembly',
-               'fkSoftwareVersion',
-               'fkTestType',
-               'fkTestSystem',
-               'Timestamp',
-               'Description',
-               'Operator',
-               'DewarID')
-
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
         '''
         Constructor
@@ -55,9 +17,9 @@ class CartTests(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         # string which gets reused below:
-        self.queryColumns = ",".join(['CT.' + name for name in self.columns])
+        self.queryColumns = ",".join(['CT.' + name for name in COLUMNS])
         
-    def create(self, cartTest:CartTest):
+    def create(self, cartTest:CartTest) -> Optional[int]:
         '''
         Create a new record in the CartTests table
         :param cartTest: contents of record
@@ -73,7 +35,7 @@ class CartTests(object):
                                                      cartTest.testSysName)
         
         # make column list, skipping keyCartTest:
-        q = "INSERT INTO CartTests({}) VALUES ({});".format(",".join(self.columns[1:]), values)
+        q = "INSERT INTO CartTests({}) VALUES ({});".format(",".join(COLUMNS[1:]), values)
         self.DB.execute(q, commit = True)
         
         # get the value for keyCartTest:

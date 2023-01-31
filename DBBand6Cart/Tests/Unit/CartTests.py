@@ -1,6 +1,7 @@
 import unittest
-from Database.CartTests import CartTest, CartTests
-from app.LoadConfiguration import loadConfiguration
+from DBBand6Cart.CartTests import CartTest, CartTests
+from DBBand6Cart.LoadConfiguration import loadConfiguration
+from ALMAFE.database.DriverMySQL import DriverMySQL
 from datetime import datetime
 
 class test_CartTests(unittest.TestCase):
@@ -10,10 +11,12 @@ class test_CartTests(unittest.TestCase):
     '''
 
     def setUp(self):
-        self.obj = CartTests(loadConfiguration('dbBand6Cart'))
+        self.driver = DriverMySQL(loadConfiguration('ALMAFE-CTS-Database.ini', 'dbBand6Cart'))
+        self.obj = CartTests(driver = self.driver)
         
     def tearDown(self):
         self.obj = None
+        self.driver.disconnect()
     
     def test_create(self):
         testId = self.__create()

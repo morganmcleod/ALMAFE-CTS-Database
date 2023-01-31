@@ -1,6 +1,7 @@
 import unittest
-from Database.MixerTests import MixerTest, MixerTests
-from app.LoadConfiguration import loadConfiguration
+from DBBand6Cart.MixerTests import MixerTest, MixerTests
+from DBBand6Cart.LoadConfiguration import loadConfiguration
+from ALMAFE.database.DriverMySQL import DriverMySQL
 from datetime import datetime
 
 class test_MixerTests(unittest.TestCase):
@@ -10,10 +11,12 @@ class test_MixerTests(unittest.TestCase):
     '''
     
     def setUp(self):
-        self.obj = MixerTests(loadConfiguration('dbBand6Cart'))
+        self.driver = DriverMySQL(loadConfiguration('ALMAFE-CTS-Database.ini', 'dbBand6Cart'))
+        self.obj = MixerTests(driver = self.driver)
         
     def tearDown(self):
         self.obj = None
+        self.driver.disconnect()
     
     def test_create(self):
         testId = self.__create()

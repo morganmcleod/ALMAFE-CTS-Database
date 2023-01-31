@@ -2,50 +2,7 @@ from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pydantic import BaseModel
 from datetime import datetime
-
-# CartTests reference CartAssemblies which reference ColdCarts
-# So 'configuration' for CartTests comes from CartAssemblies.
-
-# CREATE TABLE `CartAssemblies` (
-#     `keyCartAssys` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-#     `fkColdCarts` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `fkWCAs` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `fkBiasMods` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `fkWarmIFPlates` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `TS` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-#     `TS_Removed` DATETIME NULL DEFAULT NULL,
-#     `SN` INT(20) NULL DEFAULT NULL,
-#     `SN_Photomixer` TINYINT(3) UNSIGNED NULL DEFAULT NULL,
-#     `Notes` VARCHAR(255) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
-#     `lnk_DB_Delivery` VARCHAR(255) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
-# )
-#
-# CREATE TABLE `ColdCarts` (
-#     `keyColdCarts` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-#     `fkMxrPreampAssy0` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkMxrPreampAssy1` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkTempSensor0` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkTempSensor1` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkTempSensor2` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkTempSensor3` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkTempSensor4` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `fkTempSensor5` INT(10) UNSIGNED NULL DEFAULT NULL,
-#     `TS` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-#     `SN` VARCHAR(20) NULL DEFAULT NULL COMMENT 'assigned serial number' COLLATE 'latin1_swedish_ci',
-#     `ESN0` VARCHAR(16) NULL DEFAULT NULL COMMENT 'electronic serial number Pol0' COLLATE 'latin1_swedish_ci',
-#     `ESN1` VARCHAR(16) NULL DEFAULT NULL COMMENT 'ESN Pol1' COLLATE 'latin1_swedish_ci',
-#     ... lots of other fks ...
-# )
-
-# schema for cartridge configuration:
-class CartConfig(BaseModel):
-    id: int                                 # keyCartAssys
-    serialNum: str                          # ColdCarts.SN 
-    ESN0: str                               # ColdCarts.ESN0
-    ESN1: str                               # ColdCarts.ESN1
-    WCA: str = None                         # WCAs.SN
-    biasMod: str = None                     # BiasMods.SN
-    timeStamp: datetime = datetime.now()    # CartAssemblies.TS
+from .schemas.CartConfig import CartConfig, CartKeys
 
 class CartConfigs(object):
     '''
@@ -109,3 +66,33 @@ class CartConfigs(object):
                                WCA = row[5] if row[5] else '',
                                biasMod = row[6] if row[6] else '')
                                for row in rows]
+
+    def readKeys(self, keyCartAssys:int, pol:int):
+        """Read the database keys all the CCA components of the given keyCartAssys and pol
+
+        :param int keyCartAssys: _description_
+        :param int pol: _description_
+        """
+        q = f"""SELECT 
+            CA.keyCartAssys, MP.keyMxrPreampAssys AS keyMixer,
+            MP.fkMixerChip0, MP.fkMixerChip1,
+            PP.fkPreamp0, PP.fkPreamp1,
+            CA.TS, MP.TS AS TSMixer
+            FROM CartAssemblies AS CA JOIN ColdCarts AS CC ON CA.fkColdCarts = CC.keyColdCarts
+            JOIN MxrPreampAssys AS MP ON CC.fkMxrPreampAssy{pol} = MP.keyMxrPreampAssys
+            JOIN PreampPairs AS PP ON MP.fkPreampPair = PP.keyPreampPairs
+            WHERE CA.keyCartAssys = {keyCartAssys}"""
+        self.DB.execute(q)
+        row = self.DB.fetchone()
+        if not row:
+            return None
+        return CartKeys(
+            id = row[0],
+            keyMixer = row[1],
+            keyChip1 = row[2],
+            keyChip2 = row[3],
+            keyPreamp1 = row[4],
+            keyPreamp2 = row[5],
+            timeStamp = makeTimeStamp(row[6]),
+            timeStampMixer = makeTimeStamp(row[7])
+        )

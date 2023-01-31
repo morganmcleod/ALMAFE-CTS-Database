@@ -1,46 +1,13 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from pydantic import BaseModel
-from datetime import datetime
+from .schemas.MixerTest import MixerTest, COLUMNS
 from typing import List
-
-# schema for a MixerTests record
-class MixerTest(BaseModel):
-    key: int = None     # keyMxrTest
-    configId: int       # fkMxrPreampAssys
-    fkSoftwareVersion: int = 0
-    fkTestType: int
-    timeStamp: datetime = datetime.now()
-    description: str = ''
-    operator: str = ''
-    measSwName: str = ''
-    measSwVersion: str = ''
-    
-    def makeSwVersionString(self):
-        swVer = self.measSwName if self.measSwName else ''
-        if self.measSwVersion:
-            if swVer:
-                swVer += ' '
-            swVer += self.measSwVersion
-        elif self.fkSoftwareVersion:
-            if swVer:
-                swVer += ' '
-            swVer += 'fk:' + str(self.fkSoftwareVersion)
-        return swVer   
 
 class MixerTests():
     '''
     Create, Read, Update, Delete table dbBand6Cart.MixerTests records
     Each record represents a set of measurement data, normally taken as a single measurement operation.
     '''
-    columns = ('keyMxrTest',
-               'fkMxrPreampAssys',
-               'fkSoftwareVersion',
-               'fkTestType',
-               'Timestamp',
-               'Description',
-               'Operator')
-
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
         '''
         Constructor
@@ -50,7 +17,7 @@ class MixerTests():
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         # string which gets reused below:
-        self.queryColumns = ",".join(['MT.' + name for name in self.columns])
+        self.queryColumns = ",".join(['MT.' + name for name in COLUMNS])
         
     def create(self, mixerTest:MixerTest):
         '''
@@ -66,7 +33,7 @@ class MixerTests():
                                                   mixerTest.operator)
         
         # make column list, skipping keyMixerTest:
-        q = "INSERT INTO MxrTests({}) VALUES ({});".format(",".join(self.columns[1:]), values)
+        q = "INSERT INTO MxrTests({}) VALUES ({});".format(",".join(COLUMNS[1:]), values)
         self.DB.execute(q, commit = True)
         
         # get the value for keyMixerTest:

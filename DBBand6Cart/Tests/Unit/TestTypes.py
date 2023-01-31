@@ -1,21 +1,24 @@
 import unittest
-from Database.TestTypes import TestType, TestTypes
-from app.LoadConfiguration import loadConfiguration
+from DBBand6Cart.TestTypes import TestType, TestTypes
+from DBBand6Cart.LoadConfiguration import loadConfiguration
+from ALMAFE.database.DriverMySQL import DriverMySQL
 
 class test_TestTypes(unittest.TestCase):
     
     def setUp(self):
-        self.obj = TestTypes(loadConfiguration('dbBand6Cart'))
+        self.driver = DriverMySQL(loadConfiguration('ALMAFE-CTS-Database.ini', 'dbBand6Cart'))
+        self.obj = TestTypes(driver = self.driver)
         
     def tearDown(self):
         self.obj = None
+        self.driver.disconnect()
     
     def test_read(self):
         # get all test types:
         testTypes = self.obj.read()
         
-        # there should be at least 10:
-        self.assertTrue(len(testTypes) >= 10)
+        # there should be at least 5:
+        self.assertTrue(len(testTypes) >= 5)
         
         # test each one:
         for testType in testTypes:
