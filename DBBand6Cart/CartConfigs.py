@@ -29,7 +29,7 @@ class CartConfigs(object):
         :param latestOnly: if True find only the latest configuration for serialNum
         :return list of CartConfig or None if not found
         '''
-        q = '''SELECT CA0.keyCartAssys, CC.SN, CC.ESN0, CC.ESN1, CA0.TS, 
+        q = '''SELECT CA0.keyCartAssys, CC.keyColdCarts, CC.SN, CC.ESN0, CC.ESN1, CA0.TS, 
                WCAs.SN AS WCASN, BiasMods.SN AS BiasModSN
                FROM ColdCarts as CC, CartAssemblies AS CA0'''
         
@@ -59,12 +59,13 @@ class CartConfigs(object):
             return None
         else:
             return [CartConfig(id = row[0],
-                               serialNum = row[1] if row[1] else '',
-                               ESN0 = row[2] if row[2] else '',
-                               ESN1 = row[3] if row[3] else '',
-                               timeStamp = makeTimeStamp(row[4]),
-                               WCA = row[5] if row[5] else '',
-                               biasMod = row[6] if row[6] else '')
+                               coldCartId = row[1],
+                               serialNum = row[2] if row[2] else '',
+                               ESN0 = row[3] if row[3] else '',
+                               ESN1 = row[4] if row[4] else '',
+                               timeStamp = makeTimeStamp(row[5]),
+                               WCA = row[6] if row[6] else '',
+                               biasMod = row[7] if row[7] else '')
                                for row in rows]
 
     def readKeys(self, keyCartAssys:int, pol:int):
@@ -77,10 +78,17 @@ class CartConfigs(object):
             CA.keyCartAssys, MP.keyMxrPreampAssys AS keyMixer,
             MP.fkMixerChip0, MP.fkMixerChip1,
             PP.fkPreamp0, PP.fkPreamp1,
+            MP.SN as snMixer,
+            M0.SN as snChip1, M1.SN as snChip2,
+            P0.SN as snPreamp1, P1.SN as snPreamp2,
             CA.TS, MP.TS AS TSMixer
             FROM CartAssemblies AS CA JOIN ColdCarts AS CC ON CA.fkColdCarts = CC.keyColdCarts
             JOIN MxrPreampAssys AS MP ON CC.fkMxrPreampAssy{pol} = MP.keyMxrPreampAssys
             JOIN PreampPairs AS PP ON MP.fkPreampPair = PP.keyPreampPairs
+            JOIN MixerChips as M0 ON MP.fkMixerChip0 = M0.keyMixerChips
+            JOIN MixerChips as M1 ON MP.fkMixerChip1 = M1.keyMixerChips
+            JOIN Preamps AS P0 ON PP.fkPreamp0 = P0.keyPreamps
+            JOIN Preamps AS P1 ON PP.fkPreamp1 = P1.keyPreamps
             WHERE CA.keyCartAssys = {keyCartAssys}"""
         self.DB.execute(q)
         row = self.DB.fetchone()
@@ -93,6 +101,11 @@ class CartConfigs(object):
             keyChip2 = row[3],
             keyPreamp1 = row[4],
             keyPreamp2 = row[5],
-            timeStamp = makeTimeStamp(row[6]),
-            timeStampMixer = makeTimeStamp(row[7])
+            snMixer = row[6] if row[6] else '',
+            snChip1 = row[7] if row[7] else '',
+            snChip2 = row[8] if row[8] else '',
+            snPreamp1 = row[9] if row[9] else '',
+            snPreamp2 = row[10] if row[10] else '',
+            timeStamp = makeTimeStamp(row[11]),
+            timeStampMixer = makeTimeStamp(row[12])
         )

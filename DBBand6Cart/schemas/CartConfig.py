@@ -85,6 +85,7 @@ from datetime import datetime
 # schema for cartridge configuration:
 class CartConfig(BaseModel):
     id: int                                 # keyCartAssys
+    coldCartId: int                         # keyColdCarts
     serialNum: str                          # ColdCarts.SN 
     ESN0: str                               # ColdCarts.ESN0
     ESN1: str                               # ColdCarts.ESN1
@@ -99,5 +100,10 @@ class CartKeys(BaseModel):
     keyChip2: int                           # keyMixerChips
     keyPreamp1: int                         # keyPreamps
     keyPreamp2: int                         # keyPreamps
+    snMixer: str                            # SN of mixerPreampAssy
+    snChip1: str
+    snChip2: str
+    snPreamp1: str
+    snPreamp2: str
     timeStamp: datetime
     timeStampMixer: datetime
