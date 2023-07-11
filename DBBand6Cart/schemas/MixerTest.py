@@ -1,3 +1,7 @@
+''' Schema for records of the DBBand6Cart.MxrTests table
+
+Each record represents a measurement initiated by the MTS user.
+'''
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -13,6 +17,7 @@ from datetime import datetime
 # 	PRIMARY KEY (`keyMxrTest`) USING BTREE
 # )
 
+# The subset of columns to read/write:
 COLUMNS = (
     'keyMxrTest',
     'fkMxrPreampAssys',
@@ -23,10 +28,12 @@ COLUMNS = (
     'Operator'
 )
 
-# schema for a MixerTests record
+
 class MixerTest(BaseModel):
-    key: int = None     # keyMxrTest
-    configId: int       # fkMxrPreampAssys
+    '''A record in the DBBand6Cart.CartTests table
+    '''
+    key: int = 0                            # keyMxrTest is assigned by the database on insert.
+    configId: int                           # fkMxrPreampAssys
     fkSoftwareVersion: int = 0
     fkTestType: int
     timeStamp: datetime = datetime.now()

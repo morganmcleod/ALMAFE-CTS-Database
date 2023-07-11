@@ -25,14 +25,14 @@ class Preamps():
             return [Preamp(
                 key = row[0],
                 timeStamp = makeTimeStamp(row[1]),
-                serialNum = row[2],
-                notes = row[3],
-                coldDataBy = row[4],
+                serialNum = row[2] if row[2] else '',
+                notes = row[3] if row[3] else '',
+                coldDataBy = row[4] if row[4] else '',
                 coldDataTS = makeTimeStamp(row[5]) if row[5] else None
             ) for row in rows]
 
         elif lna is not None and keyMxrPreampAssys is not None:
-            q = f"SELECT PA.keyPreamps, PP.fkPreamp{lna}, PA.TS, PA.SN, PA.Notes, PA.ColdData_By, PA.TS_ColdData "
+            q = f"SELECT PA.keyPreamps, PA.TS, PA.SN, PA.Notes, PA.ColdData_By, PA.TS_ColdData "
             q += "FROM Preamps AS PA, PreampPairs AS PP, MxrPreampAssys AS MPA "
             q += f"WHERE PA.keyPreamps = PP.fkPreamp{lna} AND PP.keyPreampPairs = MPA.fkPreampPair "
             q += f"AND MPA.keyMxrPreampAssys={keyMxrPreampAssys};"
@@ -42,12 +42,11 @@ class Preamps():
                 return []
             return [Preamp(
                 key = row[0],
-                fkPreamp = row[1],
-                timeStamp = makeTimeStamp(row[2]),
-                serialNum = row[3],
-                notes = row[4],
-                coldDataBy = row[5],
-                coldDataTS = makeTimeStamp(row[6]) if row[6] else None
+                timeStamp = makeTimeStamp(row[1]),
+                serialNum = row[2] if row[2] else '',
+                notes = row[3] if row[3] else '',
+                coldDataBy = row[4] if row[4] else '',
+                coldDataTS = makeTimeStamp(row[5]) if row[5] else None
             ) for row in rows]
             
         else:
@@ -77,8 +76,8 @@ class Preamps():
         notes = f"'{rec.notes}'" if rec.notes else "NULL"
         coldDataBy = f"'{rec.coldDataBy}'" if rec.coldDataBy else "NULL"
         coldDataTS = f"'{rec.coldDataTS.strftime(self.DB.TIMESTAMP_FORMAT)}'" if rec.coldDataTS else "NULL"
-        q = "INSERT INTO Preamps (fkPreamp, SN, Notes, ColdData_By, TS_ColdData) VALUES "
-        q += f"({rec.fkPreamp}, {rec.serialNum}, {notes}, {coldDataBy}, {coldDataTS});"
+        q = "INSERT INTO Preamps (SN, Notes, ColdData_By, TS_ColdData) VALUES "
+        q += f"({rec.serialNum}, {notes}, {coldDataBy}, {coldDataTS});"
         self.DB.execute(q, commit = True)
         
         # get the value for keyPreamps:

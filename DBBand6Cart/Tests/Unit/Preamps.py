@@ -20,7 +20,7 @@ class test_Preamps(unittest.TestCase):
     def test_readPreamps(self):
         for key in (3329, 3323, 3278, 2594, 2540):
             with self.subTest(key = key):
-                rows = self.obj.readPreamps(keyPreamps = key)
+                rows = self.obj.read(keyPreamps = key)
                 self.assertEqual(len(rows), 1)
                 row = rows[0]
                 self.assertIsInstance(row, Preamp)
@@ -31,7 +31,7 @@ class test_Preamps(unittest.TestCase):
                 if row.coldDataTS is not None:
                     self.assertIsInstance(row.coldDataTS, datetime)
         for key in (1178, 945, 1196, 1148, 1095):
-            rows = self.obj.readPreamps(lna = 0, keyMxrPreampAssys = key)
+            rows = self.obj.read(lna = 0, keyMxrPreampAssys = key)
             for row in rows:
                 with self.subTest(row = row):
                     self.assertIsInstance(row, Preamp)
@@ -41,7 +41,7 @@ class test_Preamps(unittest.TestCase):
                 if row.coldDataTS is not None:
                     self.assertIsInstance(row.coldDataTS, datetime)
         for key in (1197, 1096, 1195, 1117, 1933):
-            rows = self.obj.readPreamps(lna = 1, keyMxrPreampAssys = key)
+            rows = self.obj.read(lna = 1, keyMxrPreampAssys = key)
             for row in rows:
                 with self.subTest(row = row):
                     self.assertIsInstance(row, Preamp)

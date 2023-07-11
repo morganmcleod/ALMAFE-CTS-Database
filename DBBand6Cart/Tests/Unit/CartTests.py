@@ -28,13 +28,13 @@ class test_CartTests(unittest.TestCase):
         self.assertTrue(len(records) == 1)
         rec = records[0]
         self.assertTrue(rec.key == 10839)
-        self.assertTrue(rec.configId == 378)
+        self.assertTrue(rec.configId == 537)
         self.assertTrue(rec.fkSoftwareVersion == 1245)
         self.assertTrue(rec.fkTestType == 2)
         self.assertTrue(rec.description == 'Cart6.001 SWTEST')
         self.assertTrue(rec.operator == 'MM')
         
-        records = self.obj.read(configId = 378)
+        records = self.obj.read(configId = 537)
         self.assertTrue(len(records) >= 100)
         rec = records[0]
         self.assertTrue(rec.key == 10926)

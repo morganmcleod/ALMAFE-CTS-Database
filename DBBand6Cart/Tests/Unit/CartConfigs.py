@@ -1,5 +1,5 @@
 import unittest
-from DBBand6Cart.schemas.CartConfig import CartConfig, CartConfig
+from DBBand6Cart.schemas.CartConfig import CartConfig, CartKeys
 from DBBand6Cart.CartConfigs import CartConfigs
 from DBBand6Cart.LoadConfiguration import loadConfiguration
 from ALMAFE.database.DriverMySQL import DriverMySQL
@@ -30,15 +30,26 @@ class test_CartConfigs(unittest.TestCase):
                 self.assertIsInstance(config, CartConfig)
                 self.assertTrue(config.id > 0)
                 self.assertTrue(len(config.serialNum) > 0)
-                self.assertTrue(len(config.ESN0) == 16, msg = "key = {}: ESN0='{}'".format(config.id, config.ESN0))
-                self.assertTrue(len(config.ESN1) == 16 or config.ESN1 == '')
                 self.assertIsInstance(config.timeStamp, datetime)
         
         # retrieve and test a specific one:
         records = self.obj.read(configs[0].id)
+        record = records[0]
         self.assertIsInstance(config, CartConfig)
-        self.assertTrue(records[0].id > 0)
-        self.assertTrue(len(records[0].serialNum) > 0)
-        self.assertTrue(len(records[0].ESN0) == 16, msg = records[0].ESN0)
-        self.assertTrue(len(records[0].ESN1) == 16 or config.ESN1 == '')
-        self.assertIsInstance(records[0].timeStamp, datetime)
+        self.assertTrue(record.id > 0)
+        self.assertTrue(len(record.serialNum) > 0)
+        self.assertIsInstance(record.timeStamp, datetime)
+
+        for config in configs:
+            keys = self.obj.readKeys(config.id, 0)
+            # use subTest so loop will continue after first failure:
+            with self.subTest(keys = keys):
+                if keys:           
+                    self.assertIsInstance(keys, CartKeys)
+                    self.assertTrue(keys.id > 0)
+                    self.assertTrue(keys.keyMixer > 0)
+                    self.assertTrue(keys.keyChip1 > 0)
+                    self.assertTrue(keys.keyChip2 > 0)
+                    self.assertTrue(keys.keyPreamp1 > 0)
+                    self.assertTrue(keys.keyPreamp2 > 0)        
+                    self.assertIsInstance(keys.timeStamp, datetime)

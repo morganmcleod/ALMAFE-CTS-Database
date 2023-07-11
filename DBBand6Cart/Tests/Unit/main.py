@@ -12,6 +12,7 @@ if not projectRoot in sys.path:
 os.chdir(projectRoot)
 
 from DBBand6Cart.Tests.Unit.CartConfigs import test_CartConfigs
+from DBBand6Cart.Tests.Unit.MixerConfigs import test_MixerConfigs
 from DBBand6Cart.Tests.Unit.CartTests import test_CartTests
 from DBBand6Cart.Tests.Unit.TestTypes import test_TestTypes
 from DBBand6Cart.Tests.Unit.MixerTests import test_MixerTests

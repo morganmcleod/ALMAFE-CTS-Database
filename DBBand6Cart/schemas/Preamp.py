@@ -1,5 +1,10 @@
+''' Schema for records of the DBBand6Cart.Preamps table
+
+Each record in PreampPairs references one or two records in Preamps.
+'''
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 # CREATE TABLE `Preamps` (
 # 	`keyPreamps` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -17,6 +22,7 @@ from datetime import datetime
 #   ... other stuff ...
 # )
 
+# The subset of columns to read/write:
 COLUMNS = (
     'keyPreamps', 
     'TS', 
@@ -27,10 +33,11 @@ COLUMNS = (
 )
 
 class Preamp(BaseModel):
-    key:int = None          # keyPreamps
-    fkPreamp:int = None     # PreampPairs.fkPreamp0 or 1
-    timeStamp:datetime = None
-    serialNum:str = None
-    notes:str = None
-    coldDataBy:str = None
-    coldDataTS:datetime = None
+    '''A record in the DBBand6Cart.Preamps table
+    '''
+    key: int = 0                    # keyPreamps is assigned by the database on insert.
+    timeStamp: datetime
+    serialNum: str
+    notes: Optional[str] = None
+    coldDataBy: Optional[str] = None
+    coldDataTS: Optional[datetime] = None

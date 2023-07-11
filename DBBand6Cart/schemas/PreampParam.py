@@ -1,3 +1,7 @@
+'''Schema for records of the DBBand6Cart.PreampParams table
+
+For each Preamps record there are a collection of PreampParams records, each having a different FreqLO.
+'''
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -27,6 +31,7 @@ from datetime import datetime
 # 	INDEX 'Preamp' ('fkPreamps') USING BTREE
 # )
 
+# The subset of columns to read/write:
 COLUMNS = (
     'keyPreampParams', 
     'fkPreamps',
@@ -41,7 +46,9 @@ COLUMNS = (
 )
 
 class PreampParam(BaseModel):
-    key:int = None      # keyPreampParams
+    '''A record in the DBBand6Cart.PreampParams table
+    '''
+    key:int = None              # keyPreampParams is assigned by the database on insert.
     fkPreamps:int = None
     FreqLO:float = None
     timeStamp: datetime = None

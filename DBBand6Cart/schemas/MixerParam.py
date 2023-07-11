@@ -1,3 +1,7 @@
+'''Schema for records of the DBBand6Cart.MixerParams table
+
+For each MixerChips record there are a collection of MixerParams records, each having a different FreqLO.
+'''
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -15,6 +19,7 @@ from datetime import datetime
 # 	INDEX 'Mixer' ('fkMixerChips') USING BTREE
 # )
 
+# The subset of columns to read/write:
 COLUMNS = (
     'keyMixerParams',
     'fkMixerChips',
@@ -26,10 +31,12 @@ COLUMNS = (
 )
 
 class MixerParam(BaseModel):
-    key:int = None  # keyMixerParams
-    fkMixerChips: int = None
-    FreqLO: float = None
-    timeStamp: datetime = None
-    VJ:float = None
-    IJ:float = None
-    IMAG:float = None
+    '''A record in the DBBand6Cart.MixerParams table
+    '''
+    key:int = 0                     # keyMixerParams is assigned by the database on insert.
+    fkMixerChips: int = 0           # this default is fine when interpolating.
+    FreqLO: float
+    timeStamp: datetime = datetime.now()
+    VJ:float
+    IJ:float
+    IMAG:float

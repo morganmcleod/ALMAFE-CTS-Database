@@ -1,24 +1,17 @@
-from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
-from ALMAFE.database.DriverMySQL import DriverMySQL
+''' Schema for records of the DBBand6Cart.ColdCarts table plus helpers for child table keys
+
+Each record in CartTests references a record in ColdCarts, designating the cartridge configuration for the test.
+'''
 from pydantic import BaseModel
 from datetime import datetime
 
-# CartTests reference CartAssemblies which reference ColdCarts
-# So 'configuration' for CartTests comes from CartAssemblies.
-
-# CREATE TABLE `CartAssemblies` (
-#     `keyCartAssys` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-#     `fkColdCarts` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `fkWCAs` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `fkBiasMods` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `fkWarmIFPlates` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-#     `TS` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-#     `TS_Removed` DATETIME NULL DEFAULT NULL,
-#     `SN` INT(20) NULL DEFAULT NULL,
-#     `SN_Photomixer` TINYINT(3) UNSIGNED NULL DEFAULT NULL,
-#     `Notes` VARCHAR(255) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
-#     `lnk_DB_Delivery` VARCHAR(255) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
-# )
+# Historically all test data in the CartTests table referenced CartAssemblies, 
+# so that the WCA, Bias Module, Warm IF plate, etc. could be associated with the test data.
+#
+# However, since the start of ALMA operations and maintenance the cold cartridge, represented
+# by the ColdCarts table, is the unit under test.  And the CartAssemblies table was not being updated.
+# 
+# Since mid-2023 the CTS software now associates CartTests with ColdCarts instead of CartAssemblies.
 
 # CREATE TABLE `ColdCarts` (
 #     `keyColdCarts` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -82,25 +75,25 @@ from datetime import datetime
 # 	PRIMARY KEY (`keyPreampPairs`) USING BTREE
 # )
 
-# schema for cartridge configuration:
 class CartConfig(BaseModel):
-    id: int                                 # keyCartAssys
-    coldCartId: int                         # keyColdCarts
-    serialNum: str                          # ColdCarts.SN 
-    ESN0: str                               # ColdCarts.ESN0
-    ESN1: str                               # ColdCarts.ESN1
-    WCA: str = None                         # WCAs.SN
-    biasMod: str = None                     # BiasMods.SN
-    timeStamp: datetime = datetime.now()    # CartAssemblies.TS
+    '''A record in the DBBand6Cart.ColdCarts table
+    '''
+    id: int = 0                             # keyColdCarts is assigned by the database on insert.
+    serialNum: str
+    ESN0: str
+    ESN1: str
+    timeStamp: datetime = datetime.now()
 
 class CartKeys(BaseModel):
-    id: int                                 # keyCartAssys
+    '''This data model collects the child record keys, serial numbers, and useful metadata
+    '''
+    id: int                                 # keyColdCarts
     keyMixer: int                           # keyMixerPreampAssys
     keyChip1: int                           # keyMixerChips
     keyChip2: int                           # keyMixerChips
-    keyPreamp1: int                         # keyPreamps
-    keyPreamp2: int                         # keyPreamps
-    snMixer: str                            # SN of mixerPreampAssy
+    keyPreamp1: int                         # keyPreamps accessed via PreampPairs
+    keyPreamp2: int                         # keyPreamps accessed via PreampPairs
+    snMixer: int                            # MxrPreampAssys.SN
     snChip1: str
     snChip2: str
     snPreamp1: str

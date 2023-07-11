@@ -1,5 +1,10 @@
+''' Schema for records of the DBBand6Cart.CartTests table
+
+Each record represents a measurement initiated by the CTS user.
+'''
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 # CREATE TABLE `CartTests` (
 # 	`keyCartTest` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -15,32 +20,39 @@ from datetime import datetime
 # 	PRIMARY KEY (`keyCartTest`) USING BTREE
 # )
 
-COLUMNS = ('keyCartTest',
-           'fkCartAssembly',
-           'fkSoftwareVersion',
-           'fkTestType',
-           'fkTestSystem',
-           'Timestamp',
-           'Description',
-           'Operator',
-           'DewarID')
+# The subset of columns to read/write:
+COLUMNS = (
+    'keyCartTest',
+    'fkCartAssembly',
+    'fkColdCarts',
+    'fkSoftwareVersion',
+    'fkTestType',
+    'fkTestSystem',
+    'Timestamp',
+    'Description',
+    'Operator',
+    'DewarID'
+)
             
 # schema for a CartTests record
 class CartTest(BaseModel):
-    key: int = None     # keyCartTests
-    configId: int       # fkCartAssembly
-    isSelection: bool = False
+    '''A record in the DBBand6Cart.CartTests table
+    '''
+    key: int = 0                        # keyCartTests is assigned by the database on insert.
+    configId: int                       # fkColdCart
+    cartAssyId: Optional[int] = None    # fkCartAssembly, vestigial
+    isSelection: bool = False           # for making "virtual" CartTests, to combine data from multiple runs
     fkSoftwareVersion: int = 0
     fkTestType: int = 0
     fkTestSystem: int = 0
     timeStamp: datetime = datetime.now()
     description: str = ''
     operator: str = ''
-    testSysName: str = '' # DewarID
+    testSysName: str = ''               # DewarID
     measSwName: str = ''
     measSwVersion: str = ''
     
-    def makeSwVersionString(self):
+    def makeSwVersionString(self) -> str:
         swVer = self.measSwName if self.measSwName else ''
         if self.measSwVersion:
             if swVer:

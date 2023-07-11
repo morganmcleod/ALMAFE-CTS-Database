@@ -74,7 +74,6 @@ class TestResults(object):
     
         # make column list, skipping keyCartTest:
         q = "INSERT INTO TestResults({}) VALUES ({});".format(",".join(self.columns[1:]), values)
-        print(q)
         self.DB.execute(q, commit = True)
         
         # get the value for keyCartTest:

@@ -25,15 +25,17 @@ class CartTests(object):
         :param cartTest: contents of record
         :return int keyCartTest of new record or None if failed
         '''
-        values = "{},{},{},{},'{}','{}','{}','{}'".format(cartTest.configId, 
-                                                     cartTest.fkSoftwareVersion, 
-                                                     cartTest.fkTestType,
-                                                     cartTest.fkTestSystem, 
-                                                     cartTest.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT),
-                                                     cartTest.description, 
-                                                     cartTest.operator,
-                                                     cartTest.testSysName)
-        
+        values = "{},{},{},{},{},'{}','{}','{}','{}'".format(
+            cartTest.cartAssyId if cartTest.cartAssyId else 0,
+            cartTest.configId, 
+            cartTest.fkSoftwareVersion, 
+            cartTest.fkTestType,
+            cartTest.fkTestSystem, 
+            cartTest.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT),
+            cartTest.description, 
+            cartTest.operator,
+            cartTest.testSysName)
+
         # make column list, skipping keyCartTest:
         q = "INSERT INTO CartTests({}) VALUES ({});".format(",".join(COLUMNS[1:]), values)
         self.DB.execute(q, commit = True)
@@ -66,12 +68,13 @@ class CartTests(object):
               TODO ideally for performance, this would be a native column on CartTests
         :return list[CartTest] or None if not found
         '''
-        q = "SELECT {}{} FROM CartTests AS CT".format(self.queryColumns, ", SEL.fkCartTests" if withSelection else "")                
+        sel = ", SEL.fkCartTests" if withSelection else ""
+        q = f"SELECT {self.queryColumns}{sel} FROM CartTests AS CT"
         where = ""
         
         if serialNum:
-            q += " JOIN CartAssemblies AS CA ON CT.fkCartAssembly = CA.keyCartAssys" 
-            where = " WHERE CA.SN = {}".format(int(serialNum))
+            q += " JOIN ColdCarts AS CC ON CT.fkColdCarts = CC.keyColdCarts" 
+            where = f" WHERE CC.SN = '{int(serialNum):03}'"
         
         if withSelection:
             q += " LEFT JOIN (SELECT DISTINCT fkCartTests FROM CartTestsSelection) AS SEL ON SEL.fkCartTests = CT.keyCartTest"
@@ -88,7 +91,7 @@ class CartTests(object):
                 where = " WHERE"
             else: 
                 where += " AND"
-            where += " fkCartAssembly = {}".format(configId)
+            where += " CT.fkColdCarts = {}".format(configId)
         
         if keyTestType:
             if not where:
@@ -107,16 +110,17 @@ class CartTests(object):
         else:
             # return list of CartTest:            
             return [CartTest(key = row[0],
-                             configId = row[1],
-                             fkSoftwareVersion = row[2],
-                             fkTestType = row[3],
-                             fkTestSystem = row[4],
-                             timeStamp =  makeTimeStamp(row[5]), 
-                             description = row[6] if row[6] else '',
-                             operator = row[7] if row[7] else '',
-                             testSysName = row[8] if row[8] else '',
-                             isSelection = True if withSelection and row[9] else False,
-                             ) for row in rows]
+                cartAssyId = row[1],
+                configId = row[2],
+                fkSoftwareVersion = row[3],
+                fkTestType = row[4],
+                fkTestSystem = row[5],
+                timeStamp =  makeTimeStamp(row[6]), 
+                description = row[7] if row[7] else '',
+                operator = row[8] if row[8] else '',
+                testSysName = row[9] if row[9] else '',
+                isSelection = True if withSelection and row[10] else False,
+            ) for row in rows]
             
     def update(self, CartTest):
         '''

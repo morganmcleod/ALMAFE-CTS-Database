@@ -2,11 +2,11 @@ from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Union
+from typing import List, Union, Optional
 
 class TestResultPlot(BaseModel):
     id: int = 0
-    plotBinary: bytes = None
+    plotBinary: Optional[bytes] = None
     contentType: str = "image/png"
     description: str = None
     timeStamp: datetime = datetime.now()

@@ -1,7 +1,22 @@
+'''Schema for records of the DBBand6Cart.TestTypes table
+
+Each CartTest and MxrTest record has an fkTestType field referencing this table.
+'''
 from pydantic import BaseModel
 from enum import Enum
 
+# CREATE TABLE `TestTypes` (
+# 	`keyTestType` TINYINT(3) UNSIGNED NOT NULL AUTO_INCREMENT,
+# 	`Name` VARCHAR(30) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+# 	`Description` VARCHAR(60) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+# 	PRIMARY KEY (`keyTestType`) USING BTREE
+# )
+
 class TestTypeIds(Enum):
+    ''' Test types we know about.  
+    
+    These are copied here from the table to make useful constants available.
+    '''
     UNDEFINED = 0
     NOISE_TEMP = 1
     BEAM_PATTERN = 2
@@ -18,6 +33,8 @@ class TestTypeIds(Enum):
     
 # schema for cartridge test types:
 class TestType(BaseModel):
+    '''A record in the DBBand6Cart.TestTypes table
+    '''
     id: int
     name: str
     description: str = ''
