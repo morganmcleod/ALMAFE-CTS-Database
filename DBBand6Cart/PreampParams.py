@@ -1,33 +1,46 @@
+""" Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
+"""
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.PreampParam import PreampParam, COLUMNS
-from datetime import datetime
 from typing import List
 
 class PreampParams():
-
+    """ Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
+    """
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
-        '''
-        Constructor
+        """ Constructor
+
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
         :param driver: initialized DriverMySQL to use or None
-        '''
+        """
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
 
     def read(self, keyPreamp:int, latestOnly:bool = True) -> List[PreampParam]:
+        """ Read preamnp paramters for a given preamp
+
+        :param int keyPreamp: id of preamp
+        :param bool latestOnly: If true, only get the most recent set, defaults to True
+        :return List[PreampParam]
+        """
         q = f"SELECT {','.join(COLUMNS)} FROM PreampParams WHERE fkPreamps = {keyPreamp} ORDER BY FreqLO ASC, TS DESC;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
             return []
+
+        # keep only the newest records for each FreqLO        
         if latestOnly:
+            # using a dict to cache FreqLOs seen and their rows:
             keep = {}
             for row in rows:
                 FreqLO = row[2]
                 if FreqLO not in keep.keys():
                     keep[FreqLO] = row
-            rows = [keep[FreqLO] for FreqLO in keep.keys()]            
+            # now we have only one row per FreqLO:
+            rows = [keep[FreqLO] for FreqLO in keep.keys()]
+
         return [PreampParam(
             key = row[0],
             fkPreamps = row[1],
@@ -41,27 +54,21 @@ class PreampParams():
             ID3 = row[9] if row[9] else 0
         ) for row in rows]
 
-    def create(self, fkPreamps:int, preampParams:List[PreampParam]) -> int:
-        q = "INSERT INTO PreampParams (fkPreamps, FreqLO, VD1, VD2, VD3, ID1, ID2, ID3) VALUES "
+    def create(self, fkPreamps:int, preampParams:List[PreampParam]) -> bool:
+        """ Create new records
+
+        :param List[PreampParam] mixerParams: records to insert
+        :return bool: true if successful
+        """
+        q = f"INSERT INTO PreampParams ({COLUMNS[1:]}) VALUES "
         values = ""
         for row in preampParams:
-            if row.FreqLO > 0:
-                if values != "":
-                    values += ","
-                values += f"({row.fkPreamps}, {row.FreqLO}, {row.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT)}, "
-                values += f"{row.VD1}, {row.VD2}, {row.VD3}, {row.ID1}, {row.ID2}, {row.ID3})"
+            if values:
+                values += ","
+            values += f"({row.getInsertVals()})"
         
         if values == "":
-            return 0
+            return False
         
         q += values + ";"
-        self.DB.execute(q, commit = True)
-        
-        # get the last value for keyPreampParams:
-        q = "SELECT LAST_INSERT_ID()"
-        self.DB.execute(q)
-        row = self.DB.fetchone()
-        if not row:
-            return 0
-        else:
-            return row[0]
+        return self.DB.execute(q, commit = True)

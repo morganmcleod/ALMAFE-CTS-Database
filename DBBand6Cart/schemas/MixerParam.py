@@ -1,7 +1,7 @@
-'''Schema for records of the DBBand6Cart.MixerParams table
+"""Schema for records of the DBBand6Cart.MixerParams table
 
 For each MixerChips record there are a collection of MixerParams records, each having a different FreqLO.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -31,8 +31,8 @@ COLUMNS = (
 )
 
 class MixerParam(BaseModel):
-    '''A record in the DBBand6Cart.MixerParams table
-    '''
+    """A record in the DBBand6Cart.MixerParams table
+    """
     key:int = 0                     # keyMixerParams is assigned by the database on insert.
     fkMixerChips: int = 0           # this default is fine when interpolating.
     FreqLO: float
@@ -40,3 +40,15 @@ class MixerParam(BaseModel):
     VJ:float
     IJ:float
     IMAG:float
+
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},{},'{}',{},{}".format(
+            self.fkMixerChips,
+            self.FreqLO,
+            self.timeStamp,
+            self.VJ,
+            self.IJ,
+            self.IMAG
+        )

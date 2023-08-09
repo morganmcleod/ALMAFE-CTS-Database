@@ -1,10 +1,27 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
+from .GetLastInsertId import getLastInsertId
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 import json
+
+# CREATE TABLE `TestResults` (
+# 	`keyTestResult` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+# 	`fkCartTests` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+# 	`DataStatus` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+# 	`WhenAccepted` DATETIME NULL DEFAULT NULL,
+# 	`AcceptedBy` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+# 	`MeasurementSW` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+# 	`AnalysisSW` TINYTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+# 	`Timestamp` DATETIME NULL DEFAULT NULL,
+# 	`Description` TEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+# 	`Plots` TEXT NULL DEFAULT NULL COMMENT 'JSON structure describing plot IDs to load' COLLATE 'latin1_swedish_ci',
+# 	PRIMARY KEY (`keyTestResult`) USING BTREE,
+# 	INDEX `Index 2` (`fkCartTests`) USING BTREE
+# )
+
 
 class DataStatus(Enum):
     UNDEFINED = 0
@@ -26,72 +43,72 @@ class TestResult(BaseModel):
     timeStamp: Optional[datetime] = datetime.now()
     plots: Optional[List[int]] = []
 
-class TestResults(object):
-    '''
-    Create, Read, Update, Delete table dbBand6Cart.TestResults records
-    '''
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        try:
+            plots = json.dumps(self.plots) if self.plots else ''
+        except:
+            plots = ''
+        return "{},{},{},'{}','{}','{}','{}','{}','{}'".format(
+            self.fkCartTests,
+            self.dataStatus.value,
+            f"'{self.whenAccepted}'" if self.whenAccepted else "NULL",
+            self.acceptedBy if self.acceptedBy else '', 
+            self.measurementSW if self.measurementSW else '',
+            self.analysisSW if self.analysisSW else '',
+            self.description if self.description else '',
+            self.timeStamp,
+            plots
+        )
 
-    columns = ('keyTestResult',
-               'fkCartTests',
-               'DataStatus',
-               'WhenAccepted',
-               'AcceptedBy',
-               'MeasurementSW',
-               'AnalysisSW',
-               'Description',
-               'Timestamp',
-               'Plots')
+COLUMNS = (
+    'keyTestResult',
+    'fkCartTests',
+    'DataStatus',
+    'WhenAccepted',
+    'AcceptedBy',
+    'MeasurementSW',
+    'AnalysisSW',
+    'Description',
+    'Timestamp',
+    'Plots'
+)
+
+class TestResults(object):
+    """
+    Create, Read, Update, Delete table dbBand6Cart.TestResults records
+    """
+
+
 
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
-        '''
+        """
         Constructor
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
         :param driver: initialized DriverMySQL to use or None
-        '''
+        """
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
     def create(self, result:TestResult):
-        '''
+        """
         Create a new record in the TestResults table
         :param result: contents of record
         :return TestResult of new record or None if failed
-        '''
-        try:
-            plots = json.dumps(result.plots) if result.plots else ''
-        except:
-            plots = ''
-        values = "{},{},'{}','{}','{}','{}','{}','{}','{}'".format(
-            result.fkCartTests,
-            result.dataStatus.value,
-            result.whenAccepted.strftime(self.DB.TIMESTAMP_FORMAT) if result.whenAccepted else '',
-            result.acceptedBy if result.acceptedBy else '', 
-            result.measurementSW if result.measurementSW else '',
-            result.analysisSW if result.analysisSW else '',
-            result.description if result.description else '',
-            result.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT),
-            plots)
-    
+        """
         # make column list, skipping keyCartTest:
-        q = "INSERT INTO TestResults({}) VALUES ({});".format(",".join(self.columns[1:]), values)
+        q = f"INSERT INTO TestResults({','.join(COLUMNS[1:])}) VALUES ({result.getInsertVals()});"
         self.DB.execute(q, commit = True)
-        
-        # get the value for keyCartTest:
-        q = "SELECT LAST_INSERT_ID()"
-        self.DB.execute(q)
-        row = self.DB.fetchone()
-        if not row:
-            return None
-        else:
-            result.key = row[0]
-            return result
+        result.key = getLastInsertId(self.DB)
+        return result.key
 
     def update(self, result:TestResult):
-        '''
+        """
         Update the given TestResults record
         :param TestResults record to update from, specified by key or fkCartTests
         :return keyTestResult if successful, None otherwise
-        '''
+        """
         where = " WHERE "
         if result.key:
             where += "keyTestResult = {};".format(result.key)
@@ -100,21 +117,22 @@ class TestResults(object):
         else:
             raise ValueError("Either key or fkCartTests must be provided")
             
-        q = "UPDATE TestResults SET {} = {}".format(self.columns[2], result.dataStatus.value)
+        q = "UPDATE TestResults SET "
         if not result.whenAccepted:
             result.whenAccepted = datetime.min
         try:
             plots = json.dumps(result.plots) if result.plots else ''
         except:
             plots = ''
-        q += ", {} = '{}'".format(self.columns[3], result.whenAccepted.strftime(self.DB.TIMESTAMP_FORMAT))
-        q += ", {} = '{}'".format(self.columns[4], result.acceptedBy if result.acceptedBy else '')
-        q += ", {} = '{}'".format(self.columns[5], result.measurementSW if result.measurementSW else '')
-        q += ", {} = '{}'".format(self.columns[6], result.analysisSW if result.analysisSW else '')
-        q += ", {} = '{}'".format(self.columns[7], result.description if result.description else '')
-        q += ", {} = '{}'".format(self.columns[8], result.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT))
-        q += ", {} = '{}'".format(self.columns[9], plots)
-        q += where;
+        q += "{} = {}".format(COLUMNS[2], result.dataStatus.value)
+        q += ", {} = '{}'".format(COLUMNS[3], result.whenAccepted.strftime(self.DB.TIMESTAMP_FORMAT))
+        q += ", {} = '{}'".format(COLUMNS[4], result.acceptedBy if result.acceptedBy else '')
+        q += ", {} = '{}'".format(COLUMNS[5], result.measurementSW if result.measurementSW else '')
+        q += ", {} = '{}'".format(COLUMNS[6], result.analysisSW if result.analysisSW else '')
+        q += ", {} = '{}'".format(COLUMNS[7], result.description if result.description else '')
+        q += ", {} = '{}'".format(COLUMNS[8], result.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT))
+        q += ", {} = '{}'".format(COLUMNS[9], plots)
+        q += where
         
         if self.DB.execute(q, commit = True):
             return result
@@ -122,10 +140,10 @@ class TestResults(object):
             return None
     
     def createOrUpdate(self, result:TestResult):
-        '''
+        """
         Create or update the given TestResults record
         :param result: TestResults record, specified by fkCartTests
-        '''
+        """
         existing = self.read(fkCartTests = result.fkCartTests) 
         if existing:
             result.key = existing.key
@@ -134,13 +152,13 @@ class TestResults(object):
             return self.create(result)
         
     def read(self, keyResults:int = None, fkCartTests:int = None):
-        '''
+        """
         Read a specific record from TestResults, specified by the either keyResults or fkCartTest
         :param keyResults: key of record to read or None
         :param fkCartTest: key of record to read or None.  One of the two must be specified.
         :return TestResult or None if not found
-        '''
-        q = "SELECT {} FROM TestResults WHERE ".format(",".join(self.columns))
+        """
+        q = "SELECT {} FROM TestResults WHERE ".format(",".join(COLUMNS))
         if keyResults:
             q += "keyTestResult = {};".format(keyResults)
         elif fkCartTests:
@@ -169,12 +187,12 @@ class TestResults(object):
                               plots = plots)
     
     def delete(self, keyResults:int = None, fkCartTests:int = None):
-        '''
+        """
         Delete the specified TestResults record, specified by the either keyResults or fkCartTest
         :param keyResults: key of record to read or None
         :param fkCartTest: key of record to read or None.  One of the two must be specified.
         :return True if successful
-        '''
+        """
         q = "DELETE FROM TestResults WHERE "
         if keyResults:
             q += "keyTestResult = {};".format(keyResults)

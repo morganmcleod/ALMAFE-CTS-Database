@@ -1,34 +1,46 @@
+""" Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
+"""
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.MixerParam import MixerParam, COLUMNS
 from typing import List
 
 class MixerParams():
-    '''
-    Create, Read, Update, Delete dbBand6Cart records related to MixerParam
-    '''
+    """ Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
+    """
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
-        '''
-        Constructor
+        """ Constructor
+
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
         :param driver: initialized DriverMySQL to use or None
-        '''
+        """
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
 
     def read(self, keyMixerChips:int, latestOnly:bool = True) -> List[MixerParam]:
+        """ Read mixer paramters for a given mixer chip
+
+        :param int keyMixerChips: id of mixer chip
+        :param bool latestOnly: If true, only get the most recent set, defaults to True
+        :return List[MixerParam]
+        """
         q = f"SELECT {','.join(COLUMNS)} FROM MixerParams WHERE fkMixerChips = {keyMixerChips} ORDER BY FreqLO ASC, TS DESC;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
             return []
+        
+        # keep only the newest records for each FreqLO
         if latestOnly:
+            # using a dict to cache FreqLOs seen and their rows:
             keep = {}
             for row in rows:
                 FreqLO = row[2]
                 if FreqLO not in keep.keys():
                     keep[FreqLO] = row
+            # now we have only one row per FreqLO:
             rows = [keep[FreqLO] for FreqLO in keep.keys()]
+
         return [MixerParam(
             key = row[0],
             fkMixerChips = row[1],
@@ -39,33 +51,21 @@ class MixerParams():
             IMAG = row[6]
         ) for row in rows]
 
-    def create(self, mixerParams:List[MixerParam]) -> int:
+    def create(self, mixerParams:List[MixerParam]) -> bool:
+        """ Create new records
+
+        :param List[MixerParam] mixerParams: records to insert
+        :return bool: true if successful
+        """
         q = f"INSERT INTO MixerParams ({','.join(COLUMNS[1:])}) VALUES "
         values = ""
         for row in mixerParams:
-            value = ",".join([
-                row.fkMixerChips,
-                row.FreqLO,
-                row.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT),
-                row.VJ,
-                row.IJ,
-                row.IMAG
-            ])
-            if values != "":
+            if values:
                 values += ","
-            values += "(" + value + ")"
+            values += f"({row.getInsertVals()})"
+
         if values == "":
-            return 0
+            return False
+
         q += values + ";"
-        self.DB.execute(q, commit = True)
-        
-        # get the last value for keyMixerParams:
-        q = "SELECT LAST_INSERT_ID()"
-        self.DB.execute(q)
-        row = self.DB.fetchone()
-        if not row:
-            return 0
-        else:
-            return row[0]
-
-
+        return self.DB.execute(q, commit = True)

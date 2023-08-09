@@ -5,10 +5,10 @@ from ALMAFE.database.DriverMySQL import DriverMySQL
 from datetime import datetime
 
 class test_MixerTests(unittest.TestCase):
-    '''
+    """
     TODO: this test uses real data from the database.
     It would be better to use synthetic data which is guaranteed to be reproducable.
-    '''
+    """
     
     def setUp(self):
         self.driver = DriverMySQL(loadConfiguration('ALMAFE-CTS-Database.ini', 'dbBand6Cart'))

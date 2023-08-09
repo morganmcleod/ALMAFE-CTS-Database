@@ -1,7 +1,7 @@
-''' Schema for records of the DBBand6Cart.BP_Errors table
+""" Schema for records of the DBBand6Cart.BP_Errors table
 
 During each raster scan, referenced by fkBeamPatterns, zero or more errors may be logged here.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
@@ -45,16 +45,16 @@ COLUMNS = (
 )
 
 class BPErrorLevel(Enum):
-    ''' Constants for the Level field
-    '''
+    """ Constants for the Level field
+    """
     INFO     = 0
     WARNING  = 1
     ERROR    = 2
     CRITICAL = 3
 
 class BPError(BaseModel):
-    '''A record in the DBBand6Cart.BP_Errors table
-    '''
+    """A record in the DBBand6Cart.BP_Errors table
+    """
     key: int = 0                     # keyBP_Errors is assigned by the database on insert.
     fkBeamPattern: int
     Level: BPErrorLevel
@@ -66,3 +66,19 @@ class BPError(BaseModel):
     TS: datetime = datetime.now()
     FreqSrc: float = 0
     FreqRcvr: float = 0
+
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},'{}','{}','{}','{}','{}','{}',{},{}".format(
+            self.fkBeamPattern,
+            self.Level.value,
+            self.Message,
+            self.TS_First,
+            self.System,
+            self.Model,
+            self.Source,
+            self.TS,
+            self.FreqSrc,
+            self.FreqRcvr            
+        )

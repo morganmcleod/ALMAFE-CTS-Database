@@ -1,7 +1,7 @@
-''' Schema for records of the DBBand6Cart.BP_Data table
+""" Schema for records of the DBBand6Cart.BP_Data table
 
 During each raster scan, referenced by fkBeamPatterns, raw near-field data is inserted here.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -34,8 +34,8 @@ COLUMNS = (
 )
 
 class BPRawDatum(BaseModel):
-    '''A record in the DBBand6Cart.BP_Data table
-    '''
+    """A record in the DBBand6Cart.BP_Data table
+    """
     key: int = 0                # keyBP_Data is assigned by the database on insert.
     fkBeamPattern: int
     Pol: int
@@ -45,3 +45,17 @@ class BPRawDatum(BaseModel):
     Power: float
     Phase: float
     TimeStamp: datetime = datetime.now()
+    
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},{},{},{},{},{},'{}'".format(
+                self.fkBeamPattern,
+                self.Pol,
+                self.Position_X,
+                self.Position_Y,
+                self.SourceAngle,
+                self.Power,
+                self.Phase,
+                self.TimeStamp
+        )

@@ -1,7 +1,7 @@
-''' Schema for records of the DBBand6Cart.MxrTests table
+""" Schema for records of the DBBand6Cart.MxrTests table
 
 Each record represents a measurement initiated by the MTS user.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -28,10 +28,9 @@ COLUMNS = (
     'Operator'
 )
 
-
 class MixerTest(BaseModel):
-    '''A record in the DBBand6Cart.CartTests table
-    '''
+    """A record in the DBBand6Cart.CartTests table
+    """
     key: int = 0                            # keyMxrTest is assigned by the database on insert.
     configId: int                           # fkMxrPreampAssys
     fkSoftwareVersion: int = 0
@@ -42,6 +41,18 @@ class MixerTest(BaseModel):
     measSwName: str = ''
     measSwVersion: str = ''
     
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},{},'{}','{}','{}'".format(
+           self.configId, 
+           self.fkSoftwareVersion, 
+           self.fkTestType,
+           self.timeStamp,
+           self.description, 
+           self.operator
+        )
+
     def makeSwVersionString(self):
         swVer = self.measSwName if self.measSwName else ''
         if self.measSwVersion:

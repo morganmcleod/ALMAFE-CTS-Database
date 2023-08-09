@@ -1,33 +1,36 @@
+""" Read records from the DBBand6Cart.MxrPreampAssys table plus helpers for child table keys
+
+Each record in MxrTests references a record in MxrPreampAssys, designating the mixer-preamp configuration for the test.
+"""
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from pydantic import BaseModel
-from datetime import datetime
+from typing import List, Optional
 from .schemas.MixerConfig import MixerConfig, MixerKeys
 
 class MixerConfigs(object):
-    '''
-    Read mixer Configurations in dbBand6Cart
+    """ Read mixer Configurations in dbBand6Cart
+    
     The notion of Configuration is represented in the database by keyMxrPreampAssys of the MxrPreampAssys table
-    '''
+    """
     #TODO: implement MixerConfigs.create, MixerConfigs.update, MixerConfigs.delete when needed
 
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
-        '''
-        Constructor
+        """ Constructor
+
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
         :param driver: initialized DriverMySQL to use or None
-        '''
+        """
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
     
-    def read(self, keyMxrPreampAssys:int = None, serialNum:str = None, latestOnly:bool = True):
-        '''
-        Read one or more configuration records
+    def read(self, keyMxrPreampAssys:int = None, serialNum:str = None, latestOnly:bool = True) -> Optional[List[MixerConfig]]:
+        """ Read one or more configuration records
+
         :param keyMxrPreampAssys: int selector to read a single config
         :param serialNum: to match in MxrPreampAssys table
         :param latestOnly: if True find only the latest configuration for serialNum
-        :return list of CartConfig or None if not found
-        '''
+        :return list of MixerConfig or None if not found
+        """
         q = "SELECT MP0.keyMxrPreampAssys, MP0.SN, MP0.TS FROM MxrPreampAssys as MP0"
         
         where = ""
@@ -58,11 +61,11 @@ class MixerConfigs(object):
         rows = self.DB.fetchall()
         if not rows:
             return None
-        else:
-            return [MixerConfig(id = row[0],
-                                serialNum = str(row[1]) if row[1] else '0',
-                                timeStamp = makeTimeStamp(row[2]))
-                    for row in rows]
+
+        return [MixerConfig(id = row[0],
+                            serialNum = str(row[1]) if row[1] else '0',
+                            timeStamp = makeTimeStamp(row[2]))
+                for row in rows]
 
     def readKeys(self, keyMxrPreampAssys:int):
         """Read the database keys all the CCA components of the given keyCartAssys and pol
@@ -89,6 +92,7 @@ class MixerConfigs(object):
         row = self.DB.fetchone()
         if not row:
             return None
+        
         return MixerKeys(
             id = row[0],
             snMixer = str(row[1]) if row[1] else '0',

@@ -1,34 +1,34 @@
+""" Create and read records in the DBBand6Cart.ColdCarts table and its child tables
+"""
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from pydantic import BaseModel
-from datetime import datetime
+from typing import List, Optional
 from .schemas.CartConfig import CartConfig, CartKeys
 
 class CartConfigs(object):
-    '''
-    Read cartridge Configurations in dbBand6Cart
+    """ Read cartridge Configurations in dbBand6Cart
+    
     The notion of Configuration is represented in the database by keyColdCarts of the ColdCarts table
-    The serial number and ESN comes from the ColdCarts table.
-    '''
+    """
     #TODO: implement CartConfigs.create, CartConfigs.update, CartConfigs.delete when needed
 
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
-        '''
-        Constructor
+        """ Constructor
+
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
         :param driver: initialized DriverMySQL to use or None
-        '''
+        """
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
     
-    def read(self, keyColdCart:int = None, serialNum:str = None, latestOnly:bool = True):
-        '''
-        Read one or more configuration records
+    def read(self, keyColdCart:int = None, serialNum:str = None, latestOnly:bool = True) -> List[CartConfig]:
+        """ Read one or more configuration records
+        
         :param keyColdCarts: int selector to read a single config
         :param serialNum: to match in ColdCarts table
         :param latestOnly: if True find only the latest configuration for serialNum
         :return list of CartConfig or None if not found
-        '''
+        """
         q = "SELECT CC0.keyColdCarts, CC0.SN, CC0.ESN0, CC0.ESN1, CC0.TS FROM ColdCarts as CC0"
         
         where = ""
@@ -57,20 +57,21 @@ class CartConfigs(object):
         rows = self.DB.fetchall()
         if not rows:
             return None
-        else:
-            return [CartConfig(
-                id = row[0],
-                serialNum = row[1] if row[1] else '',
-                ESN0 = row[2] if row[2] else '',
-                ESN1 = row[3] if row[3] else '',
-                timeStamp = makeTimeStamp(row[4])
-            ) for row in rows]
 
-    def readKeys(self, keyColdCarts:int, pol:int):
-        """Read the database keys all the CCA components of the given keyCartAssys and pol
+        return [CartConfig(
+            id = row[0],
+            serialNum = row[1] if row[1] else '',
+            ESN0 = row[2] if row[2] else '',
+            ESN1 = row[3] if row[3] else '',
+            timeStamp = makeTimeStamp(row[4])
+        ) for row in rows]
 
-        :param int keyColdCarts: _description_
-        :param int pol: _description_
+    def readKeys(self, keyColdCarts:int, pol:int) -> Optional[List[CartKeys]]:
+        """Read the database keys and serial numbers for the CCA components for a config Id and pol
+
+        :param int keyColdCarts: configuration Id
+        :param int pol: pol 0 or 1
+        :return list of CartKeys or None of not found
         """
         q = f"""SELECT 
             CC.keyColdCarts, MP.keyMxrPreampAssys AS keyMixer, MP.SN AS snMixer,

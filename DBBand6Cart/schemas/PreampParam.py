@@ -1,7 +1,7 @@
-'''Schema for records of the DBBand6Cart.PreampParams table
+"""Schema for records of the DBBand6Cart.PreampParams table
 
 For each Preamps record there are a collection of PreampParams records, each having a different FreqLO.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -46,12 +46,12 @@ COLUMNS = (
 )
 
 class PreampParam(BaseModel):
-    '''A record in the DBBand6Cart.PreampParams table
-    '''
+    """A record in the DBBand6Cart.PreampParams table
+    """
     key:int = None              # keyPreampParams is assigned by the database on insert.
     fkPreamps:int = None
     FreqLO:float = None
-    timeStamp: datetime = None
+    timeStamp: datetime = datetime.now()
     VD1:float = None
     VD2:float = None
     VD3:float = None
@@ -59,3 +59,17 @@ class PreampParam(BaseModel):
     ID2:float = None
     ID3:float = None
 
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},'{}',{},{},{},{},{},{}".format(
+            self.fkPreamps,
+            self.FreqLO,
+            self.timeStamp,
+            self.VD1,
+            self.VD2,
+            self.VD3,
+            self.ID1,
+            self.ID2,
+            self.ID3
+        )

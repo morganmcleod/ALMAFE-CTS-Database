@@ -1,8 +1,8 @@
-''' Schema for records of the DBBand6Cart.BeamPatterns table
+""" Schema for records of the DBBand6Cart.BeamPatterns table
 
-One record is created per raster scan.  
+One self is created per raster scan.  
 There are up to five scans for each fkCartTest and FreqCarrier/FreqLO combination.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -46,8 +46,8 @@ COLUMNS = (
 )
 
 class BeamPattern(BaseModel):
-    '''A record in the DBBand6Cart.BeamPatterns table
-    '''
+    """A self in the DBBand6Cart.BeamPatterns table
+    """
     key: int = 0                # keyBeamPattern is assigned by the database on insert.
     fkCartTest: int
     FreqLO: float
@@ -61,3 +61,20 @@ class BeamPattern(BaseModel):
     Resolution: float
     SourcePosition: int
     TimeStamp: datetime = None  # normally assigned by the database on insert.
+
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},{},{},{},{},{},{},{},{},{}".format(
+            self.fkCartTest,
+            self.FreqLO,
+            self.FreqCarrier,
+            self.Beam_Center_X,
+            self.Beam_Center_Y,
+            self.Scan_Angle,
+            self.Scan_Port,
+            self.Lvl_Angle,
+            self.AutoLevel,
+            self.Resolution,
+            self.SourcePosition
+        )

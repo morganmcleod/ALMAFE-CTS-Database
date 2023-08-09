@@ -1,7 +1,7 @@
-'''Schema for records of the DBBand6Cart.MxrPreampAssys table plus helpers for child table keys
+"""Schema for records of the DBBand6Cart.MxrPreampAssys table plus helpers for child table keys
 
 Each record in MxrTests references a record in MxrPreampAssys, designating the mixer-preamp configuration for the test.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -24,8 +24,8 @@ from datetime import datetime
 # )
 
 class MixerConfig(BaseModel):
-    '''A record in the DBBand6Cart.MxrPreampAssys table
-    '''
+    """A record in the DBBand6Cart.MxrPreampAssys table
+    """
     id: int = 0                             # keyMxrPreampAssys is assigned by the database on insert.
     serialNum: str
     timeStamp: datetime = datetime.now()

@@ -1,9 +1,9 @@
-''' Schema for records of the DBBand6Cart.BP_Center_Pwrs table
+""" Schema for records of the DBBand6Cart.BP_Center_Pwrs table
 
 For each raster scan, referenced by fkBeamPatterns, there are a collection of records here
 giving the amplitude and phase at the center of the co-polar beam.  A new record is added
 every five minutes by default.  The final record for a scan will have ScanComplete = 1.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -26,11 +26,22 @@ COLUMNS = ('keyBP_Center_Pwrs',
            'ScanComplete')
 
 class BPCenterPower(BaseModel):
-    '''A record in the DBBand6Cart.BP_Center_Pwrs table
-    '''
+    """A record in the DBBand6Cart.BP_Center_Pwrs table
+    """
     key: int = 0                    # keyBP_Center_Pwrs is assigned by the database on insert.
     fkBeamPatterns: int
     Amplitude: float
     Phase: float
     timeStamp: datetime = datetime.now()
     ScanComplete: bool
+
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},{},'{}',{}".format(
+            self.fkBeamPatterns,
+            self.Amplitude,
+            self.Phase,
+            self.timeStamp,
+            1 if self.ScanComplete else 0
+        )

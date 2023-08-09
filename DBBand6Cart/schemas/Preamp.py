@@ -1,7 +1,7 @@
-''' Schema for records of the DBBand6Cart.Preamps table
+""" Schema for records of the DBBand6Cart.Preamps table
 
 Each record in PreampPairs references one or two records in Preamps.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
@@ -33,11 +33,22 @@ COLUMNS = (
 )
 
 class Preamp(BaseModel):
-    '''A record in the DBBand6Cart.Preamps table
-    '''
+    """A record in the DBBand6Cart.Preamps table
+    """
     key: int = 0                    # keyPreamps is assigned by the database on insert.
-    timeStamp: datetime
-    serialNum: str
+    timeStamp: datetime = datetime.now()
+    serialNum: Optional[str] = None
     notes: Optional[str] = None
     coldDataBy: Optional[str] = None
     coldDataTS: Optional[datetime] = None
+
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "'{}','{}',{},{},{}".format(
+            self.timeStamp,
+            self.serialNum,
+            f"'{self.notes}'" if self.notes else "NULL",
+            f"'{self.coldDataBy}'" if self.coldDataBy else "NULL",
+            f"'{self.coldDataTS}'" if self.coldDataTS else "NULL"
+        )

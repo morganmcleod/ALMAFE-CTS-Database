@@ -1,7 +1,7 @@
-''' Schema for records of the DBBand6Cart.CartTests table
+""" Schema for records of the DBBand6Cart.CartTests table
 
 Each record represents a measurement initiated by the CTS user.
-'''
+"""
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
@@ -36,8 +36,8 @@ COLUMNS = (
             
 # schema for a CartTests record
 class CartTest(BaseModel):
-    '''A record in the DBBand6Cart.CartTests table
-    '''
+    """A record in the DBBand6Cart.CartTests table
+    """
     key: int = 0                        # keyCartTests is assigned by the database on insert.
     configId: int                       # fkColdCart
     cartAssyId: Optional[int] = None    # fkCartAssembly, vestigial
@@ -52,6 +52,21 @@ class CartTest(BaseModel):
     measSwName: str = ''
     measSwVersion: str = ''
     
+    def getInsertVals(self):
+        """get a string formatted for an INSERT query
+        """
+        return "{},{},{},{},{},'{}','{}','{}','{}'".format(
+            self.cartAssyId if self.cartAssyId else 0,
+            self.configId, 
+            self.fkSoftwareVersion, 
+            self.fkTestType,
+            self.fkTestSystem, 
+            self.timeStamp,
+            self.description, 
+            self.operator,
+            self.testSysName
+        )
+
     def makeSwVersionString(self) -> str:
         swVer = self.measSwName if self.measSwName else ''
         if self.measSwVersion:
