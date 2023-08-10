@@ -20,5 +20,4 @@ def getLastInsertId(conn: DriverMySQL) -> Optional[int]:
     except:
         pass
     return None
-  
             
