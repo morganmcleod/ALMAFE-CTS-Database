@@ -30,7 +30,7 @@ class BPRawData():
         for rec in records:
             if values:
                 values += ","
-            values += rec.getInsertVals() + ")"
+            values += "(" + rec.getInsertVals() + ")"
         
         q += values + ";"
         if self.DB.execute(q, commit = True):
