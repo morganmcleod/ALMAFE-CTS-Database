@@ -61,5 +61,5 @@ class BPRawData():
             SourceAngle = row[5],
             Power = row[6],
             Phase = row[7],
-            TimeStamp = makeTimeStamp(row[8])
+            timeStamp = makeTimeStamp(row[8])
         ) for row in rows]

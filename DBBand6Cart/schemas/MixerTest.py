@@ -35,7 +35,7 @@ class MixerTest(BaseModel):
     configId: int                           # fkMxrPreampAssys
     fkSoftwareVersion: int = 0
     fkTestType: int
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     description: str = ''
     operator: str = ''
     measSwName: str = ''
@@ -44,6 +44,8 @@ class MixerTest(BaseModel):
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
         return "{},{},{},'{}','{}','{}'".format(
            self.configId, 
            self.fkSoftwareVersion, 

@@ -28,7 +28,7 @@ class MixerConfig(BaseModel):
     """
     id: int = 0                             # keyMxrPreampAssys is assigned by the database on insert.
     serialNum: str
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime
 
 class MixerKeys(BaseModel):
     id: int                                 # keyMixerPreampAssys

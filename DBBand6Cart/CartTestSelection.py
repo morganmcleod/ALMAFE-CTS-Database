@@ -22,7 +22,7 @@ class Selection(BaseModel):
     fkCartTests: int    # what 'virtual' CartTest this is a child record of
     selCartTests: int   # what original CartTest this references
     frequency: float    # and the frequency (LO/RF) to reference
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
 
     def getInsertVals(self):
         """get a string formatted for an INSERT query

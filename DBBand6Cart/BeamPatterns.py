@@ -75,5 +75,5 @@ class BeamPatterns():
             AutoLevel = row[9],
             Resolution = row[10],
             SourcePosition = row[11],
-            TimeStamp = makeTimeStamp(row[12])
+            timeStamp = makeTimeStamp(row[12])
         ) for row in rows]

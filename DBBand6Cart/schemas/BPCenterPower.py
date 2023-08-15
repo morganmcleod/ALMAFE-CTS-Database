@@ -32,12 +32,14 @@ class BPCenterPower(BaseModel):
     fkBeamPatterns: int
     Amplitude: float
     Phase: float
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     ScanComplete: bool
 
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
         return "{},{},{},'{}',{}".format(
             self.fkBeamPatterns,
             self.Amplitude,

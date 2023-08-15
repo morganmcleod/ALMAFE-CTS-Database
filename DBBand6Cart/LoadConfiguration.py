@@ -13,4 +13,5 @@ def loadConfiguration(iniFile, section):
     database = config[section]['database']
     user = config[section]['user']
     passwd = config[section]['passwd']
-    return {'host' : host, 'database' : database, 'user' : user, 'passwd' : passwd}
+    use_pure = config[section].get('use_pure', True)
+    return {'host' : host, 'database' : database, 'user' : user, 'passwd' : passwd, 'use_pure': bool(use_pure)}

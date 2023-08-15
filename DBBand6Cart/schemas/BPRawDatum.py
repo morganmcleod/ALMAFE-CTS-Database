@@ -44,11 +44,13 @@ class BPRawDatum(BaseModel):
     SourceAngle: float
     Power: float
     Phase: float
-    TimeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
         return "{},{},{},{},{},{},{},'{}'".format(
                 self.fkBeamPattern,
                 self.Pol,
@@ -57,5 +59,5 @@ class BPRawDatum(BaseModel):
                 self.SourceAngle,
                 self.Power,
                 self.Phase,
-                self.TimeStamp
+                self.timeStamp
         )

@@ -5,6 +5,8 @@ from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.CartTest import CartTest, COLUMNS
 from .GetLastInsertId import getLastInsertId
 from typing import List, Optional
+from datetime import datetime
+import configparser
 
 class CartTests(object):
     """ Create, Read, Update, Delete table dbBand6Cart.CartTests records
@@ -21,6 +23,13 @@ class CartTests(object):
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         # string which gets reused below:
         self.queryColumns = ",".join(['CT.' + name for name in COLUMNS])
+        # load the default value for fkTestSystem:
+        try:
+            config = configparser.ConfigParser()
+            config.read('ALMAFE-CTS-Database.ini')
+            self.defaultFkTestSystem = int(config['CartTests']['fkTestSystem'])
+        except:
+            self.defaultFkTestSystem = 0
         
     def create(self, cartTest:CartTest) -> Optional[int]:
         """
@@ -28,6 +37,9 @@ class CartTests(object):
         :param cartTest: contents of record
         :return int keyCartTest of new record or None if failed
         """
+        # use the fkTestSystem loaded from the config file:
+        if cartTest.fkTestSystem == 0:
+            cartTest.fkTestSystem = self.defaultFkTestSystem
         # make column list, skipping keyCartTest:
         q = f"INSERT INTO CartTests({','.join(COLUMNS[1:])}) VALUES ({cartTest.getInsertVals()});"
         self.DB.execute(q, commit = True)

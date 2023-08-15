@@ -82,7 +82,7 @@ class CartConfig(BaseModel):
     serialNum: str
     ESN0: str
     ESN1: str
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime
 
 class CartKeys(BaseModel):
     """This data model collects the child record keys, serial numbers, and useful metadata

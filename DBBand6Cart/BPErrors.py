@@ -47,11 +47,10 @@ class BPErrors():
             fkBeamPattern = row[1],
             Level = BPErrorLevel(row[2]),
             Message = row[3],
-            TS_First = makeTimeStamp(row[4]),
-            System = row[5],
-            Model = row[6],
-            Source = row[7],
-            TS = makeTimeStamp(row[8]),
-            FreqSrc = row[9],
-            FreqRcvr = row[10]
+            System = row[4],
+            Model = row[5],
+            Source = row[6],
+            timeStamp = makeTimeStamp(row[7]),
+            FreqSrc = row[8],
+            FreqRcvr = row[9]
         ) for row in rows]

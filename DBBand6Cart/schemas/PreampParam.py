@@ -51,7 +51,7 @@ class PreampParam(BaseModel):
     key:int = None              # keyPreampParams is assigned by the database on insert.
     fkPreamps:int = None
     FreqLO:float = None
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     VD1:float = None
     VD2:float = None
     VD3:float = None
@@ -62,6 +62,8 @@ class PreampParam(BaseModel):
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()        
         return "{},{},'{}',{},{},{},{},{},{}".format(
             self.fkPreamps,
             self.FreqLO,

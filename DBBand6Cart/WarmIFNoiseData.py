@@ -1,22 +1,6 @@
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pandas import DataFrame
-
-# from WarmIF_Noise_Data:
-COLUMNS = (
-    'keyWarmIF_Noise_Data',
-    'fkCartTest',
-    'fkDUT_Type',
-    'DataSet',
-    'TS',
-    'YIG_Freq',
-    'Attn',
-    'Phot',
-    'Pcold',
-    'Ambient',
-    'TifCold',
-    'TifHot',
-    'NoiseDiodeENR' 
-)
+from .schemas.WarmIFNoise import COLUMNS, WarmIFNoise
 
 class WarmIFNoiseData(object):
     """
@@ -33,13 +17,14 @@ class WarmIFNoiseData(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
-    def create(self, data:DataFrame):
+    def create(self, record: WarmIFNoise):
         """
         Create records in WarmIF_Noise_Data
-        :param data: pandas.DataFrame
+        :param data: WarmIFNoise record
         """
-        #TODO: implement WarmIFNoiseData.create when needed
-        raise(NotImplementedError)
+        # make column list, skipping keyCartTest:
+        q = f"INSERT INTO WarmIF_Noise_Data({','.join(COLUMNS[1:])}) VALUES ({record.getInsertVals()});"
+        self.DB.execute(q, commit = True)
     
     def read(self, fkCartTest:int):
         """

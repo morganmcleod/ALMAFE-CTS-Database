@@ -45,7 +45,7 @@ class CartTest(BaseModel):
     fkSoftwareVersion: int = 0
     fkTestType: int = 0
     fkTestSystem: int = 0
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     description: str = ''
     operator: str = ''
     testSysName: str = ''               # DewarID
@@ -55,6 +55,8 @@ class CartTest(BaseModel):
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()        
         return "{},{},{},{},{},'{}','{}','{}','{}'".format(
             self.cartAssyId if self.cartAssyId else 0,
             self.configId, 

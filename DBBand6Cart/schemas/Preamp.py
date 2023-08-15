@@ -36,7 +36,7 @@ class Preamp(BaseModel):
     """A record in the DBBand6Cart.Preamps table
     """
     key: int = 0                    # keyPreamps is assigned by the database on insert.
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     serialNum: Optional[str] = None
     notes: Optional[str] = None
     coldDataBy: Optional[str] = None
@@ -45,6 +45,8 @@ class Preamp(BaseModel):
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
         return "'{}','{}',{},{},{}".format(
             self.timeStamp,
             self.serialNum,

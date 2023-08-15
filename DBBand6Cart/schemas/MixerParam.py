@@ -36,7 +36,7 @@ class MixerParam(BaseModel):
     key:int = 0                     # keyMixerParams is assigned by the database on insert.
     fkMixerChips: int = 0           # this default is fine when interpolating.
     FreqLO: float
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
     VJ:float
     IJ:float
     IMAG:float
@@ -44,6 +44,8 @@ class MixerParam(BaseModel):
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()        
         return "{},{},{},'{}',{},{}".format(
             self.fkMixerChips,
             self.FreqLO,

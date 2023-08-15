@@ -9,7 +9,7 @@ class TestResultPlot(BaseModel):
     plotBinary: Optional[bytes] = None
     contentType: str = "image/png"
     description: str = None
-    timeStamp: datetime = datetime.now()
+    timeStamp: datetime = None
 
 COLUMNS = (
     'keyTestResultPlot',

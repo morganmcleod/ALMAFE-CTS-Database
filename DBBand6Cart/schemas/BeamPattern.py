@@ -60,11 +60,13 @@ class BeamPattern(BaseModel):
     AutoLevel: float
     Resolution: float
     SourcePosition: int
-    TimeStamp: datetime = None  # normally assigned by the database on insert.
+    timeStamp: datetime = None
 
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
         return "{},{},{},{},{},{},{},{},{},{},{}".format(
             self.fkCartTest,
             self.FreqLO,

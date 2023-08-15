@@ -35,7 +35,6 @@ COLUMNS = (
     'fkBeamPattern',
     'Level',
     'Message',
-    'TS_First',
     'System',
     'Model',
     'Source',
@@ -59,26 +58,26 @@ class BPError(BaseModel):
     fkBeamPattern: int
     Level: BPErrorLevel
     Message: str
-    TS_First: datetime = datetime.now()
     System: str = getfqdn()
     Model: str
     Source: str
-    TS: datetime = datetime.now()
+    timeStamp: datetime = None
     FreqSrc: float = 0
     FreqRcvr: float = 0
 
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
-        return "{},{},'{}','{}','{}','{}','{}','{}',{},{}".format(
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
+        return "{},{},'{}','{}','{}','{}','{}',{},{}".format(
             self.fkBeamPattern,
             self.Level.value,
             self.Message,
-            self.TS_First,
             self.System,
             self.Model,
             self.Source,
-            self.TS,
+            self.timeStamp,
             self.FreqSrc,
             self.FreqRcvr            
         )

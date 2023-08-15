@@ -40,12 +40,14 @@ class TestResult(BaseModel):
     measurementSW: Optional[str] = ""
     analysisSW: Optional[str] = ""
     description: Optional[str] = ""
-    timeStamp: Optional[datetime] = datetime.now()
+    timeStamp: datetime = None
     plots: Optional[List[int]] = []
 
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
         try:
             plots = json.dumps(self.plots) if self.plots else ''
         except:
