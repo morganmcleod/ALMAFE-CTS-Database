@@ -1,7 +1,5 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from pydantic import BaseModel
-from datetime import datetime
 from typing import List
 from .schemas.BPError import BPErrorLevel, BPError, COLUMNS
 
@@ -35,7 +33,7 @@ class BPErrors():
         :param int fkBeamPattern: the scan
         :return List[BPError]
         """
-        q = f"SELECT {','.join(COLUMNS)} FROM BP_Errors where fkBeamPatterns = {fkBeamPattern} ORDER BY {COLUMNS[0]} ASC;"
+        q = f"SELECT {','.join(COLUMNS)} FROM BP_Errors WHERE fkBeamPatterns = {fkBeamPattern} ORDER BY {COLUMNS[0]} ASC;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
