@@ -17,40 +17,32 @@ class WCAs():
         self.DB = driver if driver else DriverMySQL(connectionInfo)
 
     def read(self, keyWCAs: int = None, serialNum: str = None, serialNumLike: str = None):
-        q = f"SELECT {','.join(COLUMNS)} FROM WCAs"
-        where = ""
+        '''Read the latest record for each WCA SN
+        '''
+
+        q = """SELECT A.keyWCAs,A.TS,A.SN,A.FloYIG,A.FhiYIG FROM WCAs AS A
+            LEFT JOIN WCAs AS B ON A.SN = B.SN AND B.TS > A.TS
+            WHERE B.TS IS NULL"""
         
         if keyWCAs:
-            if where:
-                where += " AND "
-            where += f"keyWCAs = {keyWCAs}"
+            q += f" AND A.keyWCAs = {keyWCAs}"
 
         if serialNum:
-            if where:
-                where += " AND "
-            where += f"SN = '{serialNum}'"
+            q += f" AND A.SN = '{serialNum}'"
 
         if serialNumLike:
-            if where:
-                where += " AND "
-            where += f"SN LIKE '{serialNumLike}'"
+            q += f" AND A.SN LIKE '{serialNumLike}'"
 
-        if where:
-            q += " WHERE " + where
-        q += " ORDER BY SN ASC;"
+        q += " ORDER BY A.SN ASC;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
         
-        unique = {}
-        for row in rows:
-            if row[2] not in unique.keys():
-                unique[row[2]] = WCA(
-                    key = row[0],
-                    timeStamp = makeTimeStamp(row[1]),
-                    serialNum = row[2],
-                    ytoLowGHz = row[3],
-                    ytoHighGHz = row[4]
-                )
-        return [unique[sn] for sn in unique.keys()]
+        return [WCA(
+            key = row[0],
+            timeStamp = makeTimeStamp(row[1]),
+            serialNum = row[2],
+            ytoLowGHz = row[3],
+            ytoHighGHz = row[4]
+        ) for row in rows]
     
