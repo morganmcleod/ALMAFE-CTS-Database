@@ -35,6 +35,7 @@ from datetime import datetime
 COLUMNS = (
     'keyPreampParams', 
     'fkPreamps',
+    'Temperature',
     'FreqLO',
     'TS',
     'VD1',
@@ -50,6 +51,7 @@ class PreampParam(BaseModel):
     """
     key:int = None              # keyPreampParams is assigned by the database on insert.
     fkPreamps:int = None
+    temperature:float = 4.0
     FreqLO:float = None
     timeStamp: datetime = None
     VD1:float = None
@@ -64,8 +66,9 @@ class PreampParam(BaseModel):
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()        
-        return "{},{},'{}',{},{},{},{},{},{}".format(
+        return "{},{},{},'{}',{},{},{},{},{},{}".format(
             self.fkPreamps,
+            self.temperature,
             self.FreqLO,
             self.timeStamp,
             self.VD1,

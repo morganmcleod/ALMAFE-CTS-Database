@@ -34,20 +34,27 @@ class MixerTests():
         mixerTest.key = getLastInsertId(self.DB)
         return mixerTest.key
         
-    def read(self, keyMixerTest:int = None, 
-                   configId:int = None, 
-                   keyTestType:int = None) -> Optional[List[MixerTest]]:
+    def read(self, 
+            keyMixerTest:int = None, 
+            configId:int = None, 
+            keyTestType:int = None,
+            serialNum:str = None) -> Optional[List[MixerTest]]:
         """
         Read one or more MixerTest records
 
         :param keyMixerTest: optional int filter for a single mixerTest
         :param configId: int filter for this configuration
         :param keyTestType: keyMixerTest: optional int filter for a single mixerTest
+        :param serialNum: str filter all MxrPreampAssys configs for a given serial num
         :return list[MixerTest] or None if not found
         """
         q = f"SELECT {self.queryColumns} FROM MxrTests AS MT"
         where = ""
         
+        if serialNum:
+            q += " JOIN MxrPreampAssys AS MA ON MT.fkMxrPreampAssys = MA.keyMxrPreampAssys" 
+            where = f" WHERE MA.SN = '{serialNum}'"
+
         if keyMixerTest: 
             if not where:
                 where = " WHERE"
@@ -77,14 +84,15 @@ class MixerTests():
         if not rows:
             return None
 
-        return [MixerTest(key = row[0],
-                            configId = row[1],
-                            fkSoftwareVersion = row[2],
-                            fkTestType = row[3],
-                            timeStamp =  makeTimeStamp(row[4]), 
-                            description = row[5] if row[5] else '',
-                            operator = row[6] if row[6] else ''
-                            ) for row in rows]
+        return [MixerTest(
+            key = row[0],
+            configId = row[1],
+            fkSoftwareVersion = row[2],
+            fkTestType = row[3],
+            timeStamp =  makeTimeStamp(row[4]), 
+            description = row[5] if row[5] else '',
+            operator = row[6] if row[6] else ''
+        ) for row in rows]
             
     def update(self, MixerTest):
         """

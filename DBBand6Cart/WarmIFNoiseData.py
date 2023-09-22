@@ -1,6 +1,7 @@
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pandas import DataFrame
 from .schemas.WarmIFNoise import COLUMNS, WarmIFNoise
+from .GetLastInsertId import getLastInsertId
 
 class WarmIFNoiseData(object):
     """
@@ -25,6 +26,8 @@ class WarmIFNoiseData(object):
         # make column list, skipping keyCartTest:
         q = f"INSERT INTO WarmIF_Noise_Data({','.join(COLUMNS[1:])}) VALUES ({record.getInsertVals()});"
         self.DB.execute(q, commit = True)
+        record.key = getLastInsertId(self.DB)
+        return record.key
     
     def read(self, fkCartTest:int):
         """

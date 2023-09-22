@@ -1,46 +1,10 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from DBBand6Cart.CartTestSelection import Selection
+from DBBand6Cart.schemas.SelectTestsRecord import SelectTestsRecord
 from pandas import DataFrame
 from typing import List
-
- # from NT_Raw_Data:
-COLUMNS = ( 
-    'keyNT_Raw_Data',
-    'TS',
-    'FreqLO',
-    'CenterIF',
-    'BWIF',
-    'Pol',
-    'PwrUSB_SrcLSB',
-    'PwrLSB_SrcLSB',
-    'PwrUSB_SrcUSB',
-    'PwrLSB_SrcUSB',
-    'Phot_LSB',
-    'Pcold_LSB',
-    'Phot_LSB_StdErr',
-    'Pcold_LSB_StdErr',
-    'LSB_Pass',
-    'Phot_USB',
-    'Pcold_USB',
-    'Phot_USB_StdErr',
-    'Pcold_USB_StdErr',
-    'USB_Pass',
-    'TRF_Hot',
-    'IF_Attn',
-    'Vj1',
-    'Ij1',
-    'Vj2',
-    'Ij2',
-    'Imag',
-    'Tmixer',
-    'PLL_Lock_V',
-    'PLL_Corr_V',
-    'PLL_Assm_T',
-    'PA_A_Drain_V',
-    'PA_B_Drain_V',
-    'Source_Power' 
-)
+from .schemas.NoiseTempRawDatum import COLUMNS, NoiseTempRawDatum
+from .GetLastInsertId import getLastInsertId
 
 class NoiseTempRawData(object):
     """
@@ -57,13 +21,16 @@ class NoiseTempRawData(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
-    def create(self, data:DataFrame):
+    def create(self, record: NoiseTempRawDatum):
         """
-        Create records in NT_RawData
-        :param data: pandas.DataFrame
+        Create records in WarmIF_Noise_Data
+        :param record: NoiseTempRawDatum record
         """
-        #TODO: implement NoiseTempRawData.create when needed
-        raise(NotImplementedError)
+        # make column list, skipping keyCartTest:
+        q = f"INSERT INTO NT_Raw_Data({','.join(COLUMNS[1:])}) VALUES ({record.getInsertVals()});"
+        self.DB.execute(q, commit = True)
+        record.key = getLastInsertId(self.DB)
+        return record.key
         
     def read(self, fkCartTest:int):
         """
@@ -97,39 +64,40 @@ class NoiseTempRawData(object):
         else:
             return {row[0] : (row[1], makeTimeStamp(row[2]), makeTimeStamp(row[3])) for row in rows}
         
-    def readLOFreqs(self, fkCartTest:int):
+    def readLOFreqs(self, fkParentTest:int):
         """
-        Read the available LO frequencies for a CartTest
-        :param cartTests: schema object list of int
-        :return list [Selection] or None if not found
+        Read the available LO frequencies for a fkParentTest
+        :param fkParentTest: fkCartTest or fkMxrTest
+        :return list[SelectTestsRecord] or None if not found
         """
-        q = """SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest = {}
-            GROUP BY FreqLO""".format(fkCartTest)
+        q = f"SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
             return None
         else:
-            return [Selection(fkCartTests = fkCartTest,
-                              selCartTests = fkCartTest,
-                              timeStamp = makeTimeStamp(row[0]),
-                              frequency = row[1])
-                              for row in rows]
+            return [SelectTestsRecord(
+                fkParentTest = fkParentTest,
+                fkDutType = -1,
+                fkChildTest = fkParentTest,
+                frequency = row[1],
+                timeStamp = row[0]
+            ) for row in rows]
 
-    def readForSelection(self, selection:List[Selection]):
+    def readSelected(self, selection:List[SelectTestsRecord]):
         """
         Read noise temperature raw data specific cartTestIds and LO frequencies
-        :param selection: list[Selection] to retrieve
+        :param selection: list[SelectTestsRecord] to retrieve
         :return pandas DataFrame or None if not found
         """
         q = "SELECT {} FROM NT_Raw_Data WHERE ".format(",".join(COLUMNS)) 
         
         where = ""
-        for item in selection:
+        for sel in selection:
             if where:
                 where += " OR "
-            where += "(fkCartTest = {} AND FreqLO  = {})".format(item.selCartTests, item.frequency)
+            where += f"(fkCartTest={sel.fkParentTest} AND FreqLO={sel.frequency})"
         q += where + " ORDER BY keyNT_Raw_Data;"
         
         self.DB.execute(q)
@@ -138,23 +106,3 @@ class NoiseTempRawData(object):
             return None
         else:
             return DataFrame(rows, columns = COLUMNS)       
-
-    def update(self, data:DataFrame):
-        """
-        Update is equivalent to delete all records referencing fkCartTes in the provided data
-        folowed by create()
-        :param data: pandas.DataFrame
-        """
-        #TODO: implement NoiseTempRawData.update when needed
-        raise(NotImplementedError)
-    
-    def delete(self, fkCartTest:int):
-        """
-        Delete records referencing fkCartTest 
-        :param fkCartTest: selector
-        """
-        #TODO: implement NoiseTempRawData.delete when needed
-        raise(NotImplementedError)
-        
-        
-    

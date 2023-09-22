@@ -4,6 +4,7 @@ from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.PreampParam import PreampParam, COLUMNS
 from typing import List
+from datetime import datetime
 
 class PreampParams():
     """ Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
@@ -44,25 +45,28 @@ class PreampParams():
         return [PreampParam(
             key = row[0],
             fkPreamps = row[1],
-            FreqLO = row[2],
-            timeStamp = makeTimeStamp(row[3]),
-            VD1 = row[4] if row[4] else 0,
-            VD2 = row[5] if row[5] else 0,
-            VD3 = row[6] if row[6] else 0,
-            ID1 = row[7] if row[7] else 0,
-            ID2 = row[8] if row[8] else 0,
-            ID3 = row[9] if row[9] else 0
+            temperature = row[2] if row[2] else 0,
+            FreqLO = row[3],
+            timeStamp = makeTimeStamp(row[4]),
+            VD1 = row[5] if row[5] else 0,
+            VD2 = row[6] if row[6] else 0,
+            VD3 = row[7] if row[7] else 0,
+            ID1 = row[8] if row[8] else 0,
+            ID2 = row[9] if row[9] else 0,
+            ID3 = row[10] if row[10] else 0
         ) for row in rows]
 
-    def create(self, fkPreamps:int, preampParams:List[PreampParam]) -> bool:
+    def create(self, fkPreamps: int,preampParams:List[PreampParam]) -> bool:
         """ Create new records
 
         :param List[PreampParam] mixerParams: records to insert
         :return bool: true if successful
         """
-        q = f"INSERT INTO PreampParams ({COLUMNS[1:]}) VALUES "
+        q = f"INSERT INTO PreampParams ({','.join(COLUMNS[1:])}) VALUES "
         values = ""
         for row in preampParams:
+            row.fkPreamps = fkPreamps
+            row.timeStamp = datetime.now()
             if values:
                 values += ","
             values += f"({row.getInsertVals()})"

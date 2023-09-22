@@ -41,7 +41,7 @@ class DUT_Types(Enum):
     MIXER_PREAMP = 1
 
 class WarmIFNoise(BaseModel):
-    id: int = 0                  # keyWarmIF_Noise_Data normally assigned by the server on insert
+    key: int = 0                  # keyWarmIF_Noise_Data normally assigned by the server on insert
     fkCartTest: int
     fkDUT_Type: DUT_Types
     dataSet: int = 1
