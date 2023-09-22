@@ -4,6 +4,7 @@ from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.MixerParam import MixerParam, COLUMNS
 from typing import List
+from datetime import datetime
 
 class MixerParams():
     """ Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
@@ -51,7 +52,7 @@ class MixerParams():
             IMAG = row[6]
         ) for row in rows]
 
-    def create(self, mixerParams:List[MixerParam]) -> bool:
+    def create(self, keyChip:int, mixerParams:List[MixerParam]) -> bool:
         """ Create new records
 
         :param List[MixerParam] mixerParams: records to insert
@@ -60,6 +61,8 @@ class MixerParams():
         q = f"INSERT INTO MixerParams ({','.join(COLUMNS[1:])}) VALUES "
         values = ""
         for row in mixerParams:
+            row.fkMixerChips = keyChip
+            row.timeStamp = datetime.now()
             if values:
                 values += ","
             values += f"({row.getInsertVals()})"
