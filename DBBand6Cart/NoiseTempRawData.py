@@ -3,44 +3,8 @@ from ALMAFE.database.DriverMySQL import DriverMySQL
 from DBBand6Cart.CartTestSelection import Selection
 from pandas import DataFrame
 from typing import List
-
- # from NT_Raw_Data:
-COLUMNS = ( 
-    'keyNT_Raw_Data',
-    'TS',
-    'FreqLO',
-    'CenterIF',
-    'BWIF',
-    'Pol',
-    'PwrUSB_SrcLSB',
-    'PwrLSB_SrcLSB',
-    'PwrUSB_SrcUSB',
-    'PwrLSB_SrcUSB',
-    'Phot_LSB',
-    'Pcold_LSB',
-    'Phot_LSB_StdErr',
-    'Pcold_LSB_StdErr',
-    'LSB_Pass',
-    'Phot_USB',
-    'Pcold_USB',
-    'Phot_USB_StdErr',
-    'Pcold_USB_StdErr',
-    'USB_Pass',
-    'TRF_Hot',
-    'IF_Attn',
-    'Vj1',
-    'Ij1',
-    'Vj2',
-    'Ij2',
-    'Imag',
-    'Tmixer',
-    'PLL_Lock_V',
-    'PLL_Corr_V',
-    'PLL_Assm_T',
-    'PA_A_Drain_V',
-    'PA_B_Drain_V',
-    'Source_Power' 
-)
+from .schemas.NoiseTempRawDatum import COLUMNS, NoiseTempRawDatum
+from .GetLastInsertId import getLastInsertId
 
 class NoiseTempRawData(object):
     """
@@ -57,13 +21,16 @@ class NoiseTempRawData(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
-    def create(self, data:DataFrame):
+    def create(self, record: NoiseTempRawDatum):
         """
-        Create records in NT_RawData
-        :param data: pandas.DataFrame
+        Create records in WarmIF_Noise_Data
+        :param record: NoiseTempRawDatum record
         """
-        #TODO: implement NoiseTempRawData.create when needed
-        raise(NotImplementedError)
+        # make column list, skipping keyCartTest:
+        q = f"INSERT INTO NT_Raw_Data({','.join(COLUMNS[1:])}) VALUES ({record.getInsertVals()});"
+        self.DB.execute(q, commit = True)
+        record.key = getLastInsertId(self.DB)
+        return record.key
         
     def read(self, fkCartTest:int):
         """
@@ -138,23 +105,3 @@ class NoiseTempRawData(object):
             return None
         else:
             return DataFrame(rows, columns = COLUMNS)       
-
-    def update(self, data:DataFrame):
-        """
-        Update is equivalent to delete all records referencing fkCartTes in the provided data
-        folowed by create()
-        :param data: pandas.DataFrame
-        """
-        #TODO: implement NoiseTempRawData.update when needed
-        raise(NotImplementedError)
-    
-    def delete(self, fkCartTest:int):
-        """
-        Delete records referencing fkCartTest 
-        :param fkCartTest: selector
-        """
-        #TODO: implement NoiseTempRawData.delete when needed
-        raise(NotImplementedError)
-        
-        
-    

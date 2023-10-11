@@ -28,7 +28,6 @@ class WarmIFNoiseData(object):
         self.DB.execute(q, commit = True)
         record.key = getLastInsertId(self.DB)
         return record.key
-        return 
     
     def read(self, fkCartTest:int):
         """
