@@ -2,6 +2,7 @@
 """
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
+from DBBand6Cart.schemas.SelectTestsRecord import SelectTestsRecord
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
@@ -77,3 +78,53 @@ class BeamPatterns():
             SourcePosition = row[11],
             timeStamp = makeTimeStamp(row[12])
         ) for row in rows]
+
+    def readCarrierFreqs(self, fkParentTest:int):
+        q = f"SELECT MIN(TimeStamp), MIN(keyBeamPattern), FreqCarrier FROM BeamPatterns WHERE fkCartTest={fkParentTest} GROUP BY FreqCarrier;"
+        
+        self.DB.execute(q)
+        rows = self.DB.fetchall()
+        if not rows:
+            return None
+        else:
+            return [SelectTestsRecord(
+                fkParentTest = fkParentTest,
+                fkDutType = 0,
+                fkChildTest = row[1],
+                timeStamp = makeTimeStamp(row[0]),
+                frequency = row[2],
+                text = str(row[2])
+            ) for row in rows]
+
+    def readScans(self, fkParentTest:int, freqCarrier:float):
+        q = f"SELECT {','.join(COLUMNS)} FROM BeamPatterns WHERE fkCartTest = {fkParentTest} AND FreqCarrier = {freqCarrier} ORDER BY keyBeamPattern ASC;"
+
+        self.DB.execute(q)
+        rows = self.DB.fetchall()
+        if not rows:
+            return None
+        else:
+            items = [BeamPattern(
+                key = row[0],
+                fkCartTest = row[1],
+                FreqLO = row[2],
+                FreqCarrier = row[3],
+                Beam_Center_X = row[4],
+                Beam_Center_Y = row[5],
+                Scan_Angle = row[6],
+                Scan_Port = row[7],
+                Lvl_Angle = row[8],
+                AutoLevel = row[9],
+                Resolution = row[10],
+                SourcePosition = row[11],
+                timeStamp = makeTimeStamp(row[12])
+            ) for row in rows]
+
+            return [SelectTestsRecord(
+                fkParentTest = fkParentTest,
+                fkDutType = 0,
+                fkChildTest = item.key,
+                timeStamp = item.timeStamp,
+                frequency = item.FreqCarrier,
+                text = item.getDescription()
+            ) for item in items]

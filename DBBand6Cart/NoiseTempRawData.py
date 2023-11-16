@@ -70,7 +70,7 @@ class NoiseTempRawData(object):
         :param fkParentTest: fkCartTest or fkMxrTest
         :return list[SelectTestsRecord] or None if not found
         """
-        q = f"SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO;"
+        q = f"SELECT MIN(TS), MIN(keyNT_Raw_Data), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
@@ -80,9 +80,10 @@ class NoiseTempRawData(object):
             return [SelectTestsRecord(
                 fkParentTest = fkParentTest,
                 fkDutType = -1,
-                fkChildTest = fkParentTest,
-                frequency = row[1],
-                timeStamp = row[0]
+                fkChildTest = row[1],
+                frequency = row[2],
+                timeStamp = row[0],
+                text = str(row[2])
             ) for row in rows]
 
     def readSelected(self, selection:List[SelectTestsRecord]):

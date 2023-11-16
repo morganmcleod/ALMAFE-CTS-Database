@@ -80,3 +80,24 @@ class BeamPattern(BaseModel):
             self.Resolution,
             self.SourcePosition
         )
+
+    def getDescription(self):
+        if self.Scan_Angle == self.Lvl_Angle:
+            if self.SourcePosition == 1:
+                return "pol0 copol"
+            elif self.SourcePosition == 2:
+                return "pol1 copol"
+            elif self.SourcePosition == 3:
+                return "pol0 180"
+            elif self.SourcePosition == 3:
+                return "pol1 180"
+        else:
+            if self.SourcePosition == 1:
+                return "pol1 xpol"
+            elif self.SourcePosition == 2:
+                return "pol0 xpol"
+            elif self.SourcePosition == 3:
+                return "pol0 180"
+            elif self.SourcePosition == 3:
+                return "pol1 180"
+

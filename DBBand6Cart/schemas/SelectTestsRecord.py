@@ -40,6 +40,7 @@ class SelectTestsRecord(BaseModel):
     fkSubHeader: Optional[int] = None   # Test steps which are referenced by this selecion e.g. keyBeamPatterns
     frequency: Optional[float] = None   # frequencies from the referenced fkChildTest
     timeStamp: datetime = None
+    text: str = ''
 
     def getInsertVals(self):
         """get a string formatted for an INSERT query
