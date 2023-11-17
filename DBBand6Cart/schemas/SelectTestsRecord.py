@@ -51,7 +51,7 @@ class SelectTestsRecord(BaseModel):
             self.fkParentTest, 
             self.fkDutType, 
             self.fkChildTest,
-            "'" + self.fkSubHeader + "'" if self.fkSubHeader else "NULL",
+            self.fkSubHeader if self.fkSubHeader else "NULL",
             self.frequency if self.frequency else "NULL",
             self.timeStamp
         )

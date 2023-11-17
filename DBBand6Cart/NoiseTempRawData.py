@@ -78,9 +78,10 @@ class NoiseTempRawData(object):
             return None
         else:
             return [SelectTestsRecord(
+                key = row[1],
                 fkParentTest = fkParentTest,
                 fkDutType = -1,
-                fkChildTest = row[1],
+                fkChildTest = 0,
                 frequency = row[2],
                 timeStamp = row[0],
                 text = str(row[2])
@@ -98,7 +99,7 @@ class NoiseTempRawData(object):
         for sel in selection:
             if where:
                 where += " OR "
-            where += f"(fkCartTest={sel.fkParentTest} AND FreqLO={sel.frequency})"
+            where += f"(fkCartTest={sel.fkChildTest} AND FreqLO={sel.frequency})"
         q += where + " ORDER BY keyNT_Raw_Data;"
         
         self.DB.execute(q)

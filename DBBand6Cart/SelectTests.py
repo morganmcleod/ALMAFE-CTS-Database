@@ -62,15 +62,24 @@ class SelectTests(object):
         if not rows:
             return None
 
-        return [SelectTestsRecord(
-            key = row[0],
-            fkParentTest = row[1],
-            fkDutType = row[2],
-            fkChildTest = row[3],
-            fkSubHeader = row[4] if row[4] else None,
-            frequency = row[5] if row[5] else None,
-            timeStamp = makeTimeStamp(row[6])
-        ) for row in rows]
+        result = []
+        for row in rows:
+            text = f"{row[3]}"
+            if row[5]:
+                text += f": {row[5]}"
+            elif row[4]:
+                text += f": {row[4]}"
+            result.append(SelectTestsRecord(
+                key = row[0],
+                fkParentTest = row[1],
+                fkDutType = row[2],
+                fkChildTest = row[3],
+                fkSubHeader = row[4] if row[4] else None,
+                frequency = row[5] if row[5] else None,
+                timeStamp = makeTimeStamp(row[6]),
+                text = text
+            ))
+        return result
             
     def update(self, rows:List[SelectTestsRecord]) -> bool:
         """ Update records in the SelectTests table.

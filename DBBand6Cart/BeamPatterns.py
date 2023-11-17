@@ -88,12 +88,13 @@ class BeamPatterns():
             return None
         else:
             return [SelectTestsRecord(
+                key = row[1],
                 fkParentTest = fkParentTest,
                 fkDutType = 0,
-                fkChildTest = row[1],
+                fkChildTest = 0,
                 timeStamp = makeTimeStamp(row[0]),
                 frequency = row[2],
-                text = str(row[2])
+                text = f"{row[2]}"
             ) for row in rows]
 
     def readScans(self, fkParentTest:int, freqCarrier:float):
@@ -121,6 +122,7 @@ class BeamPatterns():
             ) for row in rows]
 
             return [SelectTestsRecord(
+                key = item.key,
                 fkParentTest = fkParentTest,
                 fkDutType = 0,
                 fkChildTest = item.key,
