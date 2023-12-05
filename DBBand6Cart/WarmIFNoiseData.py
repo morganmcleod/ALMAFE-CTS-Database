@@ -60,7 +60,11 @@ class WarmIFNoiseData(object):
         if not rows:
             return None
         else:
-            return {row[0] : (row[1], makeTimeStamp(row[2]), makeTimeStamp(row[3])) for row in rows}
+            return {row[0] : {
+                'numMeasurements': row[1], 
+                'minTS': makeTimeStamp(row[2]), 
+                'maxTS': makeTimeStamp(row[3])
+            } for row in rows}
     
     def update(self, data:DataFrame):
         """

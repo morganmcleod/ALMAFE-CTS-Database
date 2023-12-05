@@ -1,6 +1,7 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from DBBand6Cart.schemas.SelectTestsRecord import SelectTestsRecord
+from DBBand6Cart.schemas.CombineTestsRecord import CombineTestsRecord
+from DBBand6Cart.schemas.DUT_Type import DUT_Type
 from pandas import DataFrame
 from typing import List
 from .schemas.NoiseTempRawDatum import COLUMNS, NoiseTempRawDatum
@@ -62,35 +63,39 @@ class NoiseTempRawData(object):
         if not rows:
             return None
         else:
-            return {row[0] : (row[1], makeTimeStamp(row[2]), makeTimeStamp(row[3])) for row in rows}
+            return {row[0] : {
+                'numMeasurements': row[1], 
+                'minTS': makeTimeStamp(row[2]), 
+                'maxTS': makeTimeStamp(row[3])
+            } for row in rows}
         
     def readLOFreqs(self, fkParentTest:int):
         """
         Read the available LO frequencies for a fkParentTest
         :param fkParentTest: fkCartTest or fkMxrTest
-        :return list[SelectTestsRecord] or None if not found
+        :return list[CombineTestsRecord] or None if not found
         """
-        q = f"SELECT MIN(TS), MIN(keyNT_Raw_Data), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO;"
+        q = f"SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
             return None
         else:
-            return [SelectTestsRecord(
-                key = row[1],
+            return [CombineTestsRecord(
+                key = 0,
                 fkParentTest = fkParentTest,
-                fkDutType = -1,
-                fkChildTest = 0,
-                frequency = row[2],
-                timeStamp = row[0],
-                text = str(row[2])
+                fkDutType = DUT_Type.Unknown.value,
+                timeStamp = row[0],         # MIN(TS)
+                path0_TestId = 0,
+                path1 = str(row[1]),        # frequency
+                text = str(row[1])          # frequency
             ) for row in rows]
 
-    def readSelected(self, selection:List[SelectTestsRecord]):
+    def readSelected(self, selection:List[CombineTestsRecord]):
         """
         Read noise temperature raw data specific cartTestIds and LO frequencies
-        :param selection: list[SelectTestsRecord] to retrieve
+        :param selection: list[CombineTestsRecord] to retrieve
         :return pandas DataFrame or None if not found
         """
         q = "SELECT {} FROM NT_Raw_Data WHERE ".format(",".join(COLUMNS)) 
@@ -99,7 +104,7 @@ class NoiseTempRawData(object):
         for sel in selection:
             if where:
                 where += " OR "
-            where += f"(fkCartTest={sel.fkChildTest} AND FreqLO={sel.frequency})"
+            where += f"(fkCartTest={sel.path0_TestId} AND FreqLO={float(sel.path1)})"
         q += where + " ORDER BY keyNT_Raw_Data;"
         
         self.DB.execute(q)

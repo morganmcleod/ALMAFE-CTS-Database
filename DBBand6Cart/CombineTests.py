@@ -1,17 +1,17 @@
-""" Create, Read, Update, Delete table dbBand6Cart.SelectTests records
+""" Create, Read, Update, Delete table dbBand6Cart.CombineTests records
 """
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from .schemas.SelectTestsRecord import SelectTestsRecord, COLUMNS
+from .schemas.CombineTestsRecord import CombineTestsRecord, COLUMNS
 from .schemas.DUT_Type import DUT_Type
 
-class SelectTests(object):
-    """ Create, Read, Update, Delete table dbBand6Cart.SelectTests records
+class CombineTests(object):
+    """ Create, Read, Update, Delete table dbBand6Cart.CombineTests records
 
-    This table creates a one-to-many self-mapping from table CartTests or MxrTests
+    This table creates a one-to-many mapping from table CartTests or MxrTests
     where each record calls out another CartTests or MxrTests.
     For the child test table there is also associated a frequency or another subheader key.
     Examples:
@@ -29,13 +29,13 @@ class SelectTests(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
-    def create(self, rows: List[SelectTestsRecord]) -> bool:
-        """ Create records in the SelectTests table.
+    def create(self, rows: List[CombineTestsRecord]) -> bool:
+        """ Create records in the CombineTests table.
         
-        :param rows: list[SelectTestsRecord]
+        :param rows: list[CombineTestsRecord]
         :return True if successful        
         """
-        q = f"INSERT INTO SelectTests({','.join(COLUMNS[1:])}) VALUES "
+        q = f"INSERT INTO CombineTests({','.join(COLUMNS[1:])}) VALUES "
         values = ""
         for row in rows:
             try:
@@ -50,13 +50,13 @@ class SelectTests(object):
         q += values + ";"
         return self.DB.execute(q, commit = True)
             
-    def read(self, fkParentTest:int) -> Optional[List[SelectTestsRecord]]:
-        """ Read records from the SelectTests table having the given fkCartTest
+    def read(self, fkParentTest:int) -> Optional[List[CombineTestsRecord]]:
+        """ Read records from the CombineTests table having the given fkCartTest
 
         :param fkParentTest: int selector
         :return list[SelectTestsRecord] or None if not found
         """
-        q = f"SELECT {','.join(COLUMNS)} FROM SelectTests WHERE fkParentTest = {fkParentTest};"        
+        q = f"SELECT {','.join(COLUMNS)} FROM CombineTests WHERE fkParentTest = {fkParentTest};"        
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -64,29 +64,30 @@ class SelectTests(object):
 
         result = []
         for row in rows:
-            text = f"{row[3]}"
+            
+            text = f"{row[4]}"
             if row[5]:
-                text += f": {row[5]}"
-            elif row[4]:
-                text += f": {row[4]}"
-            result.append(SelectTestsRecord(
+                text += f": {float(row[5])}"
+
+            result.append(CombineTestsRecord(
                 key = row[0],
                 fkParentTest = row[1],
                 fkDutType = row[2],
-                fkChildTest = row[3],
-                fkSubHeader = row[4] if row[4] else None,
-                frequency = row[5] if row[5] else None,
-                timeStamp = makeTimeStamp(row[6]),
+                timeStamp = makeTimeStamp(row[3]),
+                path0_TestId = row[4],
+                path1 = row[5] if row[5] else None,
+                path2 = row[6] if row[6] else None,
+                description = row[7] if row[7] else None,
                 text = text
             ))
         return result
             
-    def update(self, rows:List[SelectTestsRecord]) -> bool:
-        """ Update records in the SelectTests table.
+    def update(self, rows:List[CombineTestsRecord]) -> bool:
+        """ Update records in the CombineTests table.
 
-        Because this table creates a one-to-many self-mapping, update is eqivalent 
+        Because this table creates a one-to-many mapping, update is eqivalent 
         to delete for the referenced fkParentTest then insert the given records.
-        :param rows: list[SelectTestsRecord] to delete
+        :param rows: list[CombineTestsRecord] to update
         :return True if successful
         """
         if rows:
@@ -97,9 +98,9 @@ class SelectTests(object):
         
     def delete(self, fkParentTest: int) -> bool:
         """
-        Delete records from SelectTests tables
+        Delete records from CombineTests tables
         :param selection: list[SelectTestsRecord]
         :return True if successful
         """
-        q = f"DELETE FROM SelectTests WHERE fkParentTest={fkParentTest};"
+        q = f"DELETE FROM CombineTests WHERE fkParentTest={fkParentTest};"
         return self.DB.execute(q, commit = True)
