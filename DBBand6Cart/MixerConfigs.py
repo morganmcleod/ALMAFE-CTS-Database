@@ -55,7 +55,7 @@ class MixerConfigs(object):
             where += "MP0.SN = '{:03d}'".format(int(serialNum))
         if where:
             q += " WHERE " + where
-        q += " ORDER BY SN, MP0.keyMxrPreampAssys DESC;"
+        q += " ORDER BY SN DESC, MP0.keyMxrPreampAssys DESC;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
@@ -63,9 +63,9 @@ class MixerConfigs(object):
             return None
 
         return [MixerConfig(id = row[0],
-                            serialNum = str(row[1]) if row[1] else '0',
+                            serialNum = str(row[1]),
                             timeStamp = makeTimeStamp(row[2]))
-                for row in rows]
+                for row in rows if row[1]]
 
     def readKeys(self, keyMxrPreampAssys:int):
         """Read the database keys all the CCA components of the given keyCartAssys and pol
@@ -82,11 +82,11 @@ class MixerConfigs(object):
             P0.SN as snPreamp1, P1.SN as snPreamp2,
             MP.TS AS TSMixer
             FROM MxrPreampAssys AS MP
-            JOIN PreampPairs AS PP ON MP.fkPreampPair = PP.keyPreampPairs
+            LEFT JOIN PreampPairs AS PP ON MP.fkPreampPair = PP.keyPreampPairs
             JOIN MixerChips as M0 ON MP.fkMixerChip0 = M0.keyMixerChips
-            JOIN MixerChips as M1 ON MP.fkMixerChip1 = M1.keyMixerChips
-            JOIN Preamps AS P0 ON PP.fkPreamp0 = P0.keyPreamps
-            JOIN Preamps AS P1 ON PP.fkPreamp1 = P1.keyPreamps
+            LEFT JOIN MixerChips as M1 ON MP.fkMixerChip1 = M1.keyMixerChips
+            LEFT JOIN Preamps AS P0 ON PP.fkPreamp0 = P0.keyPreamps
+            LEFT JOIN Preamps AS P1 ON PP.fkPreamp1 = P1.keyPreamps
             WHERE MP.keyMxrPreampAssys = {keyMxrPreampAssys}"""
         self.DB.execute(q)
         row = self.DB.fetchone()
@@ -96,10 +96,10 @@ class MixerConfigs(object):
         return MixerKeys(
             id = row[0],
             snMixer = str(row[1]) if row[1] else '0',
-            keyChip1 = row[2],
-            keyChip2 = row[3],
-            keyPreamp1 = row[4],
-            keyPreamp2 = row[5],
+            keyChip1 = row[2] if row[2] else 0,
+            keyChip2 = row[3] if row[3] else 0,
+            keyPreamp1 = row[4] if row[4] else 0,
+            keyPreamp2 = row[5] if row[5] else 0,
             snChip1 = row[6] if row[6] else '',
             snChip2 = row[7] if row[7] else '',
             snPreamp1 = row[8] if row[8] else '',

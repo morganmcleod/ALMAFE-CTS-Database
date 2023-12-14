@@ -9,6 +9,7 @@ class TestTypes(object):
     # Show only these test types in wildcard query (for combobox):
     SUPPORTED_TESTTYPES = (
         TestTypeIds.NOISE_TEMP,
+        TestTypeIds.IF_PLATE_NOISE,
         TestTypeIds.BEAM_PATTERN,
         TestTypeIds.PHASE_STABILITY,
         TestTypeIds.AMP_STABILITY,

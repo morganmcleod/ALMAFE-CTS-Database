@@ -46,11 +46,12 @@ class CartTests(object):
         cartTest.key = getLastInsertId(self.DB)
         return cartTest.key
         
-    def read(self, keyCartTest:int = None, 
-                   configId:int = None, 
-                   keyTestType:int = None,
-                   serialNum:str = None, 
-                   withSelection = False) -> Optional[List[CartTest]]:
+    def read(self, 
+            keyCartTest:int = None, 
+            configId:int = None, 
+            keyTestType:int = None,
+            serialNum:str = None, 
+            withSelection = False) -> Optional[List[CartTest]]:
         """
         Read one or more CartTest records
 
@@ -64,7 +65,12 @@ class CartTests(object):
         :param withSelection: if true, the isSelection column is derived from a JOIN with the CartTestsSelection table.
         :return list[CartTest] or None if not found
         """
-        sel = ", SEL.fkCartTests" if withSelection else ""
+
+        if withSelection:
+            # using temporary table instead of nested (SELECT) because of differences between mysql.connector and other drivers
+            self.DB.execute("CREATE TEMPORARY TABLE CombineTests_TEMPORARY SELECT DISTINCT fkParentTest FROM CombineTests;")
+
+        sel = ", SEL.fkParentTest" if withSelection else ""
         q = f"SELECT {self.queryColumns}{sel} FROM CartTests AS CT"
         where = ""
         
@@ -73,7 +79,7 @@ class CartTests(object):
             where = f" WHERE CC.SN = '{int(serialNum):03}'"
         
         if withSelection:
-            q += " LEFT JOIN (SELECT DISTINCT fkCartTests FROM CartTestsSelection) AS SEL ON SEL.fkCartTests = CT.keyCartTest"
+            q += " LEFT JOIN CombineTests_TEMPORARY AS SEL ON SEL.fkParentTest = CT.keyCartTest"
         
         if keyCartTest: 
             if not where:
@@ -101,10 +107,16 @@ class CartTests(object):
     
         self.DB.execute(q)
         rows = self.DB.fetchall()
+
+        if withSelection:
+            # using temporary table instead of nested (SELECT) because of differences between mysql.connector and other drivers
+            self.DB.execute("DROP TEMPORARY TABLE CombineTests_TEMPORARY;")
+
         if not rows:
             return None
 
-        return [CartTest(key = row[0],
+        return [CartTest(
+            key = row[0],
             cartAssyId = row[1],
             configId = row[2],
             fkSoftwareVersion = row[3],

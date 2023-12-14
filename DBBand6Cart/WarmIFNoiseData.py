@@ -1,3 +1,4 @@
+from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pandas import DataFrame
 from .schemas.WarmIFNoise import COLUMNS, WarmIFNoise
@@ -52,13 +53,18 @@ class WarmIFNoiseData(object):
         TODO: this query would benefit from an index on fkCartTest.
         :return list[int]
         """
-        q = 'SELECT DISTINCT fkCartTest FROM WarmIF_Noise_Data ORDER BY fkCartTest;'
+        q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
+            FROM WarmIF_Noise_Data GROUP BY fkCartTest;"""
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
             return None
         else:
-            return [row[0] for row in rows]
+            return {row[0] : {
+                'numMeasurements': row[1], 
+                'minTS': makeTimeStamp(row[2]), 
+                'maxTS': makeTimeStamp(row[3])
+            } for row in rows}
     
     def update(self, data:DataFrame):
         """

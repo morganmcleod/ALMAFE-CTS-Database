@@ -81,9 +81,6 @@ class TestResults(object):
     """
     Create, Read, Update, Delete table dbBand6Cart.TestResults records
     """
-
-
-
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
         """
         Constructor

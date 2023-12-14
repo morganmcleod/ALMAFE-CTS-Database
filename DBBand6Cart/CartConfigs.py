@@ -66,7 +66,7 @@ class CartConfigs(object):
             timeStamp = makeTimeStamp(row[4])
         ) for row in rows]
 
-    def readKeys(self, keyColdCarts:int, pol:int) -> Optional[List[CartKeys]]:
+    def readKeys(self, keyColdCarts:int, pol:int) -> Optional[CartKeys]:
         """Read the database keys and serial numbers for the CCA components for a config Id and pol
 
         :param int keyColdCarts: configuration Id

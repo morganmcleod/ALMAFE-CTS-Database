@@ -2,8 +2,6 @@
 """
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from pydantic import BaseModel
-from datetime import datetime
 from typing import List, Optional
 from .schemas.BPCenterPower import BPCenterPower, COLUMNS
 from .GetLastInsertId import getLastInsertId
@@ -71,6 +69,24 @@ class BPCenterPowers():
             ScanComplete = row[5] != 0
         ) for row in rows]
     
+    def readCounts(self):
+        q = """SELECT CT.keyCartTest, BP.keyBeamPattern, COUNT(CP.keyBP_Center_Pwrs), CT.Timestamp
+        FROM CartTests AS CT JOIN BeamPatterns AS BP ON CT.keyCartTest = BP.fkCartTest
+        JOIN BP_Center_Pwrs AS CP ON BP.keyBeamPattern = CP.fkBeamPatterns
+        WHERE CP.ScanComplete = 1
+        GROUP BY CT.keyCartTest, BP.keyBeamPattern
+        ORDER BY keyCartTest DESC, keyBeamPattern ASC;"""
+        
+        self.DB.execute(q)
+        rows = self.DB.fetchall()
+        if not rows:
+            return None
+        else:
+            return {(row[0], row[1]) : {
+                'numMeasurements': row[2], 
+                'timeStamp': makeTimeStamp(row[3])
+            } for row in rows}
+
     def update(self, BPCenterPower):
         """ Update the given BPCenterPower record
         
