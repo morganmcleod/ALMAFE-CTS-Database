@@ -3,6 +3,7 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.AmplitudeStabilityRecord import AmplitudeStabilityRecord, COLUMNS
+from .schemas.CombineTestsRecord import CombineTestsRecord
 from typing import List
 
 class AmplitudeStability():
@@ -82,3 +83,43 @@ class AmplitudeStability():
             allanVar = row[8],
             errorBar = row[9],
         ) for row in rows]
+    
+    def readSubTests(self, fkParentTest:int) -> List[CombineTestsRecord]:
+        q = f"SELECT MIN(TS), FreqLO, Pol, SB FROM AmplitudeStability WHERE fkCartTest={fkParentTest} GROUP BY FreqLO, Pol, SB;"
+        
+        self.DB.execute(q)
+        rows = self.DB.fetchall()
+        if not rows:
+            return None
+        else:
+            return [CombineTestsRecord(
+                key = row[1],
+                fkParentTest = fkParentTest,
+                fkDutType = 0,
+                timeStamp = makeTimeStamp(row[0]),  # MIN(TimeStamp)
+                path0_TestId = 0,
+                path1 = str(row[1]),
+                path2 = f"{row[2]} {row[3]}",
+                text = f"{row[1]}",
+                description = f"pol{row[2]} {'LSB' if row[3] == 1 else 'USB'}"
+            ) for row in rows]
+
+    def readCartTests(self):
+        """
+        Read the distinct values of fkCartTest in the table.
+        
+        TODO: this query would benefit from an index on fkCartTest.
+        :return list[int]
+        """
+        q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
+            FROM AmplitudeStability GROUP BY fkCartTest;"""
+        self.DB.execute(q)
+        rows = self.DB.fetchall()
+        if not rows:
+            return None
+        else:
+            return {row[0] : {
+                'numMeasurements': row[1], 
+                'minTS': makeTimeStamp(row[2]), 
+                'maxTS': makeTimeStamp(row[3])
+            } for row in rows}

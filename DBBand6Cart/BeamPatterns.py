@@ -2,10 +2,10 @@
 """
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from DBBand6Cart.schemas.CombineTestsRecord import CombineTestsRecord
 from datetime import datetime
 from typing import List, Optional
 from .schemas.BeamPattern import BeamPattern, COLUMNS
+from .schemas.CombineTestsRecord import CombineTestsRecord
 from .GetLastInsertId import getLastInsertId
 
 class BeamPatterns():
