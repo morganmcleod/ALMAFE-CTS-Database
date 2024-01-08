@@ -157,11 +157,11 @@ class TestResults(object):
         :param fkCartTest: key of record to read or None.  One of the two must be specified.
         :return TestResult or None if not found
         """
-        q = "SELECT {} FROM TestResults WHERE ".format(",".join(COLUMNS))
+        q = f"SELECT {','.join(COLUMNS)} FROM TestResults WHERE "
         if keyResults:
-            q += "keyTestResult = {};".format(keyResults)
+            q += f"keyTestResult = {keyResults};"
         elif fkCartTests:
-            q += "fkCartTests = {};".format(fkCartTests)
+            q += f"fkCartTests = {fkCartTests};"
         else:
             raise ValueError("Either keyResults or fkCartTests must be provided")
         

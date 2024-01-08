@@ -5,6 +5,7 @@ from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.AmplitudeStabilityRecord import AmplitudeStabilityRecord, COLUMNS
 from .schemas.CombineTestsRecord import CombineTestsRecord
 from typing import List
+from datetime import datetime
 
 class AmplitudeStability():
     """ Create and read records in the DBBand6Cart.AmplitudeStability table
@@ -112,7 +113,7 @@ class AmplitudeStability():
         :return list[int]
         """
         q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM AmplitudeStability GROUP BY fkCartTest;"""
+            FROM AmplitudeStability GROUP BY fkCartTest ORDER BY fkCartTest;"""
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -123,3 +124,9 @@ class AmplitudeStability():
                 'minTS': makeTimeStamp(row[2]), 
                 'maxTS': makeTimeStamp(row[3])
             } for row in rows}
+
+    def isNewerData(self, timeStamp: datetime) -> bool:
+        q = f"SELECT TS FROM AmplitudeStability WHERE TS > '{timeStamp}' LIMIT 1;"
+        self.DB.execute(q)
+        row = self.DB.fetchone()
+        return True if row else False

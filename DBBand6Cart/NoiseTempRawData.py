@@ -6,6 +6,7 @@ from pandas import DataFrame
 from typing import List
 from .schemas.NoiseTempRawDatum import COLUMNS, NoiseTempRawDatum
 from .GetLastInsertId import getLastInsertId
+from datetime import datetime
 
 class NoiseTempRawData(object):
     """
@@ -57,7 +58,7 @@ class NoiseTempRawData(object):
         :return dict { fkCartTest: (numMeas, minTS, maxTS) } 
         """
         q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM NT_Raw_Data GROUP BY fkCartTest;"""
+            FROM NT_Raw_Data GROUP BY fkCartTest ORDER BY fkCartTest;"""
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -68,6 +69,12 @@ class NoiseTempRawData(object):
                 'minTS': makeTimeStamp(row[2]), 
                 'maxTS': makeTimeStamp(row[3])
             } for row in rows}
+        
+    def isNewerData(self, timeStamp: datetime) -> bool:
+        q = f"SELECT TS FROM NT_Raw_Data WHERE TS > '{timeStamp}' LIMIT 1;"
+        self.DB.execute(q)
+        row = self.DB.fetchone()
+        return True if row else False
         
     def readLOFreqs(self, fkParentTest:int):
         """

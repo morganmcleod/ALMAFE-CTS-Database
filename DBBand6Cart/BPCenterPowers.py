@@ -5,6 +5,7 @@ from ALMAFE.database.DriverMySQL import DriverMySQL
 from typing import List, Optional
 from .schemas.BPCenterPower import BPCenterPower, COLUMNS
 from .GetLastInsertId import getLastInsertId
+from datetime import datetime
 
 class BPCenterPowers():
     """ Create and read records in the DBBand6Cart.BP_Center_Pwrs table
@@ -86,6 +87,12 @@ class BPCenterPowers():
                 'numMeasurements': row[2], 
                 'timeStamp': makeTimeStamp(row[3])
             } for row in rows}
+    
+    def isNewerData(self, timeStamp: datetime) -> bool:
+        q = f"SELECT TS FROM BP_Center_Pwrs WHERE TS > '{timeStamp}' LIMIT 1;"
+        self.DB.execute(q)
+        row = self.DB.fetchone()
+        return True if row else False
 
     def update(self, BPCenterPower):
         """ Update the given BPCenterPower record
