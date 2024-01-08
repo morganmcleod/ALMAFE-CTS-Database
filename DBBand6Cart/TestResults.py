@@ -100,7 +100,7 @@ class TestResults(object):
         q = f"INSERT INTO TestResults({','.join(COLUMNS[1:])}) VALUES ({result.getInsertVals()});"
         self.DB.execute(q, commit = True)
         result.key = getLastInsertId(self.DB)
-        return result.key
+        return result
 
     def update(self, result:TestResult):
         """
