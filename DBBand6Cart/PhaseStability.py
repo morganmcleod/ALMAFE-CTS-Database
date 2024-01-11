@@ -82,7 +82,7 @@ class PhaseStability():
             pol = row[6],
             sideband = row[7],
             time = row[8],
-            allanVar = row[9],
+            allanDev = row[9],
             errorBar = row[10],
         ) for row in rows]
     
