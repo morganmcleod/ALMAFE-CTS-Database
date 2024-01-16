@@ -34,15 +34,17 @@ class NoiseTempRawData(object):
         record.key = getLastInsertId(self.DB)
         return record.key
         
-    def read(self, fkCartTest:int):
+    def read(self, fkCartTest:int, dutType:DUT_Type = DUT_Type.Unknown):
         """
         Read records referencing fkCartTest
         :param fkCartTest: selector
         :return pandas.DataFrame
         """
-        q = "SELECT {} FROM NT_Raw_Data WHERE fkCartTest = {} ORDER BY keyNT_Raw_Data;"\
-            .format(','.join(COLUMNS), fkCartTest)
-
+        q = f"SELECT {','.join(COLUMNS)} FROM NT_Raw_Data WHERE fkCartTest = {fkCartTest}"
+        if dutType != DUT_Type.Unknown:
+            q += f" AND fkDUT_Type = {dutType.value}"
+        q +=" ORDER BY keyNT_Raw_Data;"
+        
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -50,15 +52,17 @@ class NoiseTempRawData(object):
         else:
             return DataFrame(rows, columns = COLUMNS)
     
-    def readCartTests(self):
+    def readCartTests(self, dutType:DUT_Type = DUT_Type.Unknown):
         """
         Read the distinct values of fkCartTest in the table.
         
         TODO: this query would benefit from an index on fkCartTest.
         :return dict { fkCartTest: (numMeas, minTS, maxTS) } 
         """
-        q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM NT_Raw_Data GROUP BY fkCartTest ORDER BY fkCartTest;"""
+        q = "SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS FROM NT_Raw_Data"
+        if dutType != DUT_Type.Unknown:
+            q += f" WHERE fkDUT_Type = {dutType.value}"
+        q += " GROUP BY fkCartTest ORDER BY fkCartTest;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -76,14 +80,16 @@ class NoiseTempRawData(object):
         row = self.DB.fetchone()
         return True if row else False
         
-    def readLOFreqs(self, fkParentTest:int):
+    def readLOFreqs(self, fkCartTest:int, dutType:DUT_Type = DUT_Type.Unknown):
         """
-        Read the available LO frequencies for a fkParentTest
-        :param fkParentTest: fkCartTest or fkMxrTest
+        Read the available LO frequencies for a fkCartTest
+        :param fkCartTest: fkCartTest or fkMxrTest
         :return list[CombineTestsRecord] or None if not found
         """
-        q = f"SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO;"
-        
+        q = f"SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkCartTest}"
+        if dutType != DUT_Type.Unknown:
+            q += f" WHERE fkDUT_Type = {dutType.value}"
+        q += " GROUP BY FreqLO;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -99,20 +105,22 @@ class NoiseTempRawData(object):
                 text = str(row[1])          # frequency
             ) for row in rows]
 
-    def readSelected(self, selection:List[CombineTestsRecord]):
+    def readSelected(self, selection:List[CombineTestsRecord], dutType:DUT_Type = DUT_Type.Unknown):
         """
         Read noise temperature raw data specific cartTestIds and LO frequencies
         :param selection: list[CombineTestsRecord] to retrieve
         :return pandas DataFrame or None if not found
         """
-        q = "SELECT {} FROM NT_Raw_Data WHERE ".format(",".join(COLUMNS)) 
+        q = "SELECT {} FROM NT_Raw_Data".format(",".join(COLUMNS)) 
         
         where = ""
         for sel in selection:
             if where:
                 where += " OR "
             where += f"(fkCartTest={sel.path0_TestId} AND FreqLO={float(sel.path1)})"
-        q += where + " ORDER BY keyNT_Raw_Data;"
+        if dutType != DUT_Type.Unknown:
+            where = f" fkDUT_Type={dutType.value} AND (" + where + ")"
+        q += " WHERE " + where + " ORDER BY keyNT_Raw_Data;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
