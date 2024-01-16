@@ -2,6 +2,7 @@ from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from pandas import DataFrame
 from .schemas.WarmIFNoise import COLUMNS, WarmIFNoise
+from .schemas.DUT_Type import DUT_Type
 from .GetLastInsertId import getLastInsertId
 from datetime import datetime
 
@@ -31,14 +32,16 @@ class WarmIFNoiseData(object):
         record.key = getLastInsertId(self.DB)
         return record.key
     
-    def read(self, fkCartTest:int):
+    def read(self, fkCartTest:int, dutType:DUT_Type = DUT_Type.Unknown):
         """
         Read records referencing fkCartTest
         :param fkCartTest: selector
         :return pandas.DataFrame
         """
-        q = "SELECT {} FROM WarmIF_Noise_Data WHERE fkCartTest = {} ORDER BY keyWarmIF_Noise_Data;"\
-            .format(','.join(COLUMNS), fkCartTest)
+        q = f"SELECT {','.join(COLUMNS)} FROM WarmIF_Noise_Data WHERE fkCartTest = {fkCartTest}"
+        if dutType != DUT_Type.Unknown:
+            q += f" AND fkDUT_Type = {dutType.value}"
+        q += " ORDER BY keyWarmIF_Noise_Data;"
 
         self.DB.execute(q)
         rows = self.DB.fetchall()
@@ -47,15 +50,17 @@ class WarmIFNoiseData(object):
         else:
             return DataFrame(rows, columns = COLUMNS)
     
-    def readCartTests(self):
+    def readCartTests(self, dutType:DUT_Type = DUT_Type.Unknown):
         """
         Read the distinct values of fkCartTest in the table.
         
         TODO: this query would benefit from an index on fkCartTest.
         :return list[int]
         """
-        q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM WarmIF_Noise_Data GROUP BY fkCartTest ORDER BY fkCartTest;"""
+        q = "SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS FROM WarmIF_Noise_Data"
+        if dutType != DUT_Type.Unknown:
+            q += f" WHERE fkDUT_Type = {dutType.value}"
+        q += " GROUP BY fkCartTest ORDER BY fkCartTest;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
@@ -72,20 +77,3 @@ class WarmIFNoiseData(object):
         self.DB.execute(q)
         row = self.DB.fetchone()
         return True if row else False
-        
-    def update(self, data:DataFrame):
-        """
-        Update is equivalent to delete all records referencing fkCartTes in the provided data
-        folowed by create()
-        :param data: pandas.DataFrame
-        """
-        #TODO: implement WarmIFNoiseData.update when needed
-        raise(NotImplementedError)
-    
-    def delete(self, fkCartTest:int):
-        """
-        Delete records referencing fkCartTest 
-        :param fkCartTest: selector
-        """
-        #TODO: implement WarmIFNoiseData.delete when needed
-        raise(NotImplementedError)

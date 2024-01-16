@@ -1,11 +1,11 @@
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
-from DBBand6Cart.schemas.CombineTestsRecord import CombineTestsRecord
-from DBBand6Cart.schemas.DUT_Type import DUT_Type
-from pandas import DataFrame
-from typing import List
+from .schemas.CombineTestsRecord import CombineTestsRecord
+from .schemas.DUT_Type import DUT_Type
 from .schemas.NoiseTempRawDatum import COLUMNS, NoiseTempRawDatum
 from .GetLastInsertId import getLastInsertId
+from pandas import DataFrame
+from typing import List
 from datetime import datetime
 
 class NoiseTempRawData(object):
@@ -43,7 +43,7 @@ class NoiseTempRawData(object):
         q = f"SELECT {','.join(COLUMNS)} FROM NT_Raw_Data WHERE fkCartTest = {fkCartTest}"
         if dutType != DUT_Type.Unknown:
             q += f" AND fkDUT_Type = {dutType.value}"
-        q +=" ORDER BY keyNT_Raw_Data;"
+        q += " ORDER BY keyNT_Raw_Data;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
