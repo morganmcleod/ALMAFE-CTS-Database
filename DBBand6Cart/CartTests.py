@@ -125,7 +125,7 @@ class CartTests(object):
             timeStamp =  makeTimeStamp(row[6]), 
             description = row[7] if row[7] else '',
             operator = row[8] if row[8] else '',
-            testSysName = row[9] if row[9] else '',
+            dewarID = row[9] if row[9] else '',
             isSelection = True if withSelection and row[10] else False,
         ) for row in rows]
             

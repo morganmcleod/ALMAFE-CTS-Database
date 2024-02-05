@@ -89,9 +89,10 @@ class MixerTests():
             configId = row[1],
             fkSoftwareVersion = row[2],
             fkTestType = row[3],
-            timeStamp =  makeTimeStamp(row[4]), 
-            description = row[5] if row[5] else '',
-            operator = row[6] if row[6] else ''
+            fkTestSystem = row[4],
+            timeStamp =  makeTimeStamp(row[5]), 
+            description = row[6] if row[6] else '',
+            operator = row[7] if row[6] else ''
         ) for row in rows]
             
     def update(self, MixerTest):

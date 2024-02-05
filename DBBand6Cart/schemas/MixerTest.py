@@ -10,6 +10,7 @@ from datetime import datetime
 # 	`fkMxrPreampAssys` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 # 	`fkSoftwareVersion` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 # 	`fkTestType` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+# 	`fkTestSystem` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 # 	`Timestamp` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 # 	`Description` TEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
 # 	`Operator` VARCHAR(30) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
@@ -17,12 +18,14 @@ from datetime import datetime
 # 	PRIMARY KEY (`keyMxrTest`) USING BTREE
 # )
 
+
 # The subset of columns to read/write:
 COLUMNS = (
     'keyMxrTest',
     'fkMxrPreampAssys',
     'fkSoftwareVersion',
     'fkTestType',
+    'fkTestSystem',
     'Timestamp',
     'Description',
     'Operator'
@@ -35,9 +38,11 @@ class MixerTest(BaseModel):
     configId: int                           # fkMxrPreampAssys
     fkSoftwareVersion: int = 0
     fkTestType: int
+    fkTestSystem: int
     timeStamp: datetime = None
     description: str = ''
     operator: str = ''
+    testSysName: str = ''
     measSwName: str = ''
     measSwVersion: str = ''
     
@@ -46,13 +51,14 @@ class MixerTest(BaseModel):
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()
-        return "{},{},{},'{}','{}','{}'".format(
-           self.configId, 
-           self.fkSoftwareVersion, 
-           self.fkTestType,
-           self.timeStamp,
-           self.description, 
-           self.operator
+        return "{},{},{},{},'{}','{}','{}'".format(
+            self.configId, 
+            self.fkSoftwareVersion, 
+            self.fkTestType,
+            self.fkTestSystem,
+            self.timeStamp,
+            self.description, 
+            self.operator
         )
 
     def makeSwVersionString(self):

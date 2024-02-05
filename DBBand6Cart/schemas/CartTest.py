@@ -48,7 +48,8 @@ class CartTest(BaseModel):
     timeStamp: datetime = None
     description: str = ''
     operator: str = ''
-    testSysName: str = ''               # DewarID
+    dewarID: str = ''
+    testSysName: str = ''
     measSwName: str = ''
     measSwVersion: str = ''
     
@@ -66,7 +67,7 @@ class CartTest(BaseModel):
             self.timeStamp,
             self.description, 
             self.operator,
-            self.testSysName
+            self.dewarID
         )
 
     def makeSwVersionString(self) -> str:
