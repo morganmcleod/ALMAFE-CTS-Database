@@ -1,6 +1,9 @@
+from __future__ import annotations
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
+from math import log10
+import copy
 
 # CREATE TABLE `WarmIF_Noise_Data` (
 # 	`keyWarmIF_Noise_Data` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -31,8 +34,6 @@ COLUMNS = (
     'Phot',
     'Pcold',
     'Ambient',
-    'TifCold',
-    'TifHot',
     'NoiseDiodeENR' 
 )
 
@@ -51,8 +52,6 @@ class WarmIFNoise(BaseModel):
     pHot: float
     pCold: float
     tAmbient: float
-    tIFCold: float
-    tIFHot: float
     noiseDiodeENR: float
     
     def getInsertVals(self):
@@ -60,7 +59,7 @@ class WarmIFNoise(BaseModel):
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()        
-        return "{},{},{},'{}',{},{},{},{},{},{},{},{}".format(
+        return "{},{},{},'{}',{},{},{},{},{},{}".format(
             self.fkCartTest,
             self.fkDUT_Type.value, 
             self.dataSet, 
@@ -70,7 +69,11 @@ class WarmIFNoise(BaseModel):
             self.pHot, 
             self.pCold,
             self.tAmbient,
-            self.tIFCold,
-            self.tIFHot,
             self.noiseDiodeENR
         )
+
+    def asDBM(self) -> WarmIFNoise:
+        ret = copy.copy(self)
+        ret.pHot = 10 * log10(self.pHot * 1000)
+        ret.pCold = 10 * log10(self.pCold * 1000)
+        return ret

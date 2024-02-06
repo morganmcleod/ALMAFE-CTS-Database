@@ -89,48 +89,62 @@ COLUMNS = (
 
 class NoiseTempRawDatum(BaseModel):
     key: int = 0                  # keyNT_Raw_Data normally assigned by the server on insert
-    fkCartTest: int
-    fkDUT_Type: DUT_Types
+    fkCartTest: int = 0
+    fkDUT_Type: DUT_Types = DUT_Types.BAND6_CARTRIDGE
     timeStamp: datetime = None
-    FreqLO: float
-    CenterIF: float
-    BWIF: float
-    Pol: int
-    PwrUSB_SrcLSB: float
-    PwrLSB_SrcLSB: float
-    PwrUSB_SrcUSB: float
-    PwrLSB_SrcUSB: float
-    Phot_LSB: float
-    Pcold_LSB: float
-    Phot_LSB_StdErr: float
-    Pcold_LSB_StdErr: float
-    Phot_USB: float
-    Pcold_USB: float
-    Phot_USB_StdErr: float
-    Pcold_USB_StdErr: float
-    TRF_Hot: float
-    IF_Attn: int
-    Vj1: float
-    Ij1: float
-    Vj2: float
-    Ij2: float
-    Imag: float
-    Tmixer: float
-    PLL_Lock_V: float
-    PLL_Corr_V: float
-    PLL_Assm_T: float
-    PA_A_Drain_V: float
-    PA_B_Drain_V: float
-    Source_Power : float
+    FreqLO: float = 0
+    CenterIF: float = 0
+    BWIF: float = 0
+    Pol: int = 0
+    PwrUSB_SrcLSB: float = 0
+    PwrLSB_SrcLSB: float = 0
+    PwrUSB_SrcUSB: float = 0
+    PwrLSB_SrcUSB: float = 0
+    Phot_LSB: float = 0
+    Pcold_LSB: float = 0
+    Phot_LSB_StdErr: float = 0
+    Pcold_LSB_StdErr: float = 0
+    Phot_USB: float = 0
+    Pcold_USB: float = 0
+    Phot_USB_StdErr: float = 0
+    Pcold_USB_StdErr: float = 0
+    TRF_Hot: float = 0
+    IF_Attn: int = 0
+    TColdLoad: float = 0
+    Vj1: float = 0
+    Ij1: float = 0
+    Vj2: float = 0
+    Ij2: float = 0
+    Imag: float = 0
+    Tmixer: float = 0
+    PLL_Lock_V: float = 0
+    PLL_Corr_V: float = 0
+    PLL_Assm_T: float = 0
+    PA_A_Drain_V: float = 0
+    PA_B_Drain_V: float = 0
+    Source_Power : float = 0
+
+    def getNTText(self, short: bool = True):
+        ret = f"pol{self.Pol}: {self.Phot_USB:.2f}, {self.Pcold_USB:.2f}, {self.Phot_LSB:.2f}, {self.Pcold_LSB:.2f}"
+        if short:
+            return ret
+        else:
+            return ret + f"\nerrors: {self.Phot_USB_StdErr:.2f}, {self.Pcold_USB_StdErr:.2f}, {self.Phot_LSB_StdErr:.2f}, {self.Pcold_LSB_StdErr:.2f}"
+    
+    def getIRText(self):
+        return f"pol{self.Pol}: {self.PwrUSB_SrcUSB:.2f}, {self.PwrLSB_SrcUSB:.2f}, {self.PwrLSB_SrcLSB:.2f}, {self.PwrUSB_SrcLSB:.2f}"
+
+    def getText(self):
+        return self.getNTText() + "\n" + self.getIRText() + f"\natten={self.IF_Attn}, ambient={self.TRF_Hot}, tColdEff={self.TColdLoad}"
     
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()
-        return "{},{},{},'{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(
+        return "{},{},'{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(
             self.fkCartTest,
-            self.fkDUT_Type,
+            self.fkDUT_Type.value,
             self.timeStamp,
             self.FreqLO,
             self.CenterIF,
