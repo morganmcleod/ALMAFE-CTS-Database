@@ -97,7 +97,7 @@ class NoiseTempRawData(object):
         else:
             return [CombineTestsRecord(
                 key = 0,
-                fkParentTest = fkParentTest,
+                fkParentTest = fkCartTest,
                 fkDutType = DUT_Type.Unknown.value,
                 timeStamp = row[0],         # MIN(TS)
                 path0_TestId = 0,
