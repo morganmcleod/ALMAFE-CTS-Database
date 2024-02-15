@@ -55,7 +55,7 @@ class WarmIFNoiseData(object):
         Read the distinct values of fkCartTest in the table.
         
         TODO: this query would benefit from an index on fkCartTest.
-        :return list[int]
+        :return dict: {cartTestId: {'numMeasurements': int, 'minTS': datetime, 'maxTS': datetime}
         """
         q = "SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS FROM WarmIF_Noise_Data"
         if dutType != DUT_Type.Unknown:
