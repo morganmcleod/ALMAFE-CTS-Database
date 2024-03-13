@@ -50,6 +50,7 @@ class CartTests(object):
             keyCartTest:int = None, 
             configId:int = None, 
             keyTestType:int = None,
+            keyTestSystem: int = None,
             serialNum:str = None, 
             withSelection = False) -> Optional[List[CartTest]]:
         """
@@ -60,7 +61,8 @@ class CartTests(object):
         
         :param keyCartTest: optional int filter for a single cartTest
         :param configId: int filter for this configuration
-        :param keyTestType: keyCartTest: optional int filter for a single cartTest
+        :param keyTestType: optional int filter for one test type
+        :param keyTestSystem: optional int filter for one test system
         :param serialNum: optional filter by CartAssembly.sn instead of configId to get all configs for this SN
         :param withSelection: if true, the isSelection column is derived from a JOIN with the CartTestsSelection table.
         :return list[CartTest] or None if not found
@@ -86,22 +88,29 @@ class CartTests(object):
                 where = " WHERE"
             else: 
                 where += " AND"
-            where += " CT.keyCartTest = {}".format(keyCartTest)
+            where += f" CT.keyCartTest = {keyCartTest}"
             
         if configId:
             if not where:
                 where = " WHERE"
             else: 
                 where += " AND"
-            where += " CT.fkColdCarts = {}".format(configId)
+            where += f" CT.fkColdCarts = {configId}"
         
         if keyTestType:
             if not where:
                 where = " WHERE"
             else: 
                 where += " AND"
-            where += " CT.fkTestType = {}".format(keyTestType)
-
+            where += f" CT.fkTestType = {keyTestType}"
+        
+        if keyTestSystem:
+            if not where:
+                where = " WHERE"
+            else: 
+                where += " AND"
+            where += f" CT.fkTestSystem = {keyTestSystem}"
+            
         q += where          
         q += " ORDER BY CT.keyCartTest DESC;"
     

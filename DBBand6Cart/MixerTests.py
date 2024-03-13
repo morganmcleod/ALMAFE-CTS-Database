@@ -21,13 +21,23 @@ class MixerTests():
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         # string which gets reused below:
         self.queryColumns = ",".join(['MT.' + name for name in COLUMNS])
-        
+        # load the default value for fkTestSystem:
+        try:
+            config = configparser.ConfigParser()
+            config.read('ALMAFE-CTS-Database.ini')
+            self.defaultFkTestSystem = int(config['CartTests']['fkTestSystem'])
+        except:
+            self.defaultFkTestSystem = 0
+
     def create(self, mixerTest:MixerTest) -> int:
         """
         Create a new record in the MixerTests table
         :param mixerTest: contents of record
         :return int keyMixerTest of new record or None if failed
         """
+        # use the fkTestSystem loaded from the config file:
+        if mixerTest.fkTestSystem == 0:
+            mixerTest.fkTestSystem = self.defaultFkTestSystem
         # make column list, skipping keyMixerTest:
         q = f"INSERT INTO MxrTests({','.join(COLUMNS[1:])}) VALUES ({mixerTest.getInsertVals()});"
         self.DB.execute(q, commit = True)
@@ -38,13 +48,15 @@ class MixerTests():
             keyMixerTest:int = None, 
             configId:int = None, 
             keyTestType:int = None,
+            keyTestSystem: int = None,
             serialNum:str = None) -> Optional[List[MixerTest]]:
         """
         Read one or more MixerTest records
 
         :param keyMixerTest: optional int filter for a single mixerTest
         :param configId: int filter for this configuration
-        :param keyTestType: keyMixerTest: optional int filter for a single mixerTest
+        :param keyTestType: optional int filter for one test type
+        :param keyTestSystem: optional int filter for one test system
         :param serialNum: str filter all MxrPreampAssys configs for a given serial num
         :return list[MixerTest] or None if not found
         """
@@ -76,6 +88,13 @@ class MixerTests():
                 where += " AND"
             where += f" MT.fkTestType = {keyTestType}"
 
+        if keyTestSystem:
+            if not where:
+                where = " WHERE"
+            else: 
+                where += " AND"
+            where += f" MT.fkTestSystem = {keyTestSystem}"
+        
         q += where          
         q += " ORDER BY MT.keyMxrTest DESC;"
     

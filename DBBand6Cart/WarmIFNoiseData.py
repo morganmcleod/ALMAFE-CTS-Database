@@ -5,6 +5,7 @@ from .schemas.WarmIFNoise import COLUMNS, WarmIFNoise
 from .schemas.DUT_Type import DUT_Type
 from .GetLastInsertId import getLastInsertId
 from datetime import datetime
+from typing import Dict, Union
 
 class WarmIFNoiseData(object):
     """
@@ -50,7 +51,7 @@ class WarmIFNoiseData(object):
         else:
             return DataFrame(rows, columns = COLUMNS)
     
-    def readCartTests(self, dutType:DUT_Type = DUT_Type.Unknown):
+    def readCartTests(self, dutType:DUT_Type = DUT_Type.Unknown) -> Dict[int, Dict[str, Union[int, datetime]]]:
         """
         Read the distinct values of fkCartTest in the table.
         
