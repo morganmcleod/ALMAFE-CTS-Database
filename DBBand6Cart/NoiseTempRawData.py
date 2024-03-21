@@ -34,7 +34,7 @@ class NoiseTempRawData(object):
         record.key = getLastInsertId(self.DB)
         return record.key
         
-    def read(self, fkCartTest:int, dutType:DUT_Type = DUT_Type.Unknown):
+    def read(self, fkCartTest: int, dutType: DUT_Type = DUT_Type.Unknown, freqLO: float = None):
         """
         Read records referencing fkCartTest
         :param fkCartTest: selector
@@ -43,6 +43,8 @@ class NoiseTempRawData(object):
         q = f"SELECT {','.join(COLUMNS)} FROM NT_Raw_Data WHERE fkCartTest = {fkCartTest}"
         if dutType != DUT_Type.Unknown:
             q += f" AND fkDUT_Type = {dutType.value}"
+        if freqLO is not None:
+            q += f" AND FreqLO = {freqLO}"
         q += " ORDER BY keyNT_Raw_Data;"
         
         self.DB.execute(q)

@@ -82,19 +82,21 @@ class CombineTests(object):
             ))
         return result
             
-    def update(self, rows:List[CombineTestsRecord]) -> bool:
+    def update(self, fkParentTest: int, rows: List[CombineTestsRecord]) -> bool:
         """ Update records in the CombineTests table.
 
         Because this table creates a one-to-many mapping, update is eqivalent 
         to delete for the referenced fkParentTest then insert the given records.
-        :param rows: list[CombineTestsRecord] to update
+        :param fkParentTest the ID of the combination to update
+        :param rows: list[CombineTestsRecord] new referenced records
         :return True if successful
         """
-        if rows:
-            if (self.delete(rows[0].fkParentTest)):
-                return self.create(rows)
-            else:
-                return False
+        if self.delete(fkParentTest):
+            if not rows:
+                return True
+        for row in rows:
+            row.fkParentTest = fkParentTest
+        return self.create(rows)
         
     def delete(self, fkParentTest: int) -> bool:
         """

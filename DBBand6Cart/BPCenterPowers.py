@@ -71,6 +71,7 @@ class BPCenterPowers():
         ) for row in rows]
     
     def readCounts(self):
+        # returns dict {(testId, keyBeamPattern): {numCenterPowers, timeStamp}}
         q = """SELECT CT.keyCartTest, BP.keyBeamPattern, COUNT(CP.keyBP_Center_Pwrs), CT.Timestamp
         FROM CartTests AS CT JOIN BeamPatterns AS BP ON CT.keyCartTest = BP.fkCartTest
         JOIN BP_Center_Pwrs AS CP ON BP.keyBeamPattern = CP.fkBeamPatterns

@@ -114,15 +114,26 @@ class MixerTests():
             operator = row[7] if row[6] else ''
         ) for row in rows]
             
-    def update(self, MixerTest):
+    def update(self, mixerTest: MixerTest):
         """
         Update the given MixerTests record
-        :param MixerTest
+        :param mixerTest: MixerTest record
         :return True if successful
         """
-        # TODO: implement MixerTests.update when needed
-        raise(NotImplementedError)
-    
+        q = "UPDATE MxrTests SET "
+        q += f"fkMxrPreampAssys={mixerTest.configId}"
+        q += f", fkSoftwareVersion={mixerTest.fkSoftwareVersion}"
+        q += f", fkTestType={mixerTest.fkTestType}"
+        q += f", fkTestSystem={mixerTest.fkTestSystem}"
+        if mixerTest.timeStamp:
+            q += f", Timestamp='{mixerTest.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT)}'"
+        else:
+            q += f", Timestamp='{datetime.now().strftime(self.DB.TIMESTAMP_FORMAT)}'"
+        q += f", Description='{mixerTest.description}'"
+        q += f", Operator='{mixerTest.operator}'"
+        q += f" WHERE keyMxrTest={mixerTest.key}"
+        return self.DB.execute(q, commit = True)
+
     def delete(self, keyMixerTest:int):
         """
         Delete the specified MixerTests record

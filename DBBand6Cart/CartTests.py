@@ -138,14 +138,28 @@ class CartTests(object):
             isSelection = True if withSelection and row[10] else False,
         ) for row in rows]
             
-    def update(self, CartTest):
+    def update(self, cartTest: CartTest):
         """
         Update the given CartTests record
         :param CartTest
         :return True if successful
         """
-        # TODO: implement CartTests.update when needed
-        raise(NotImplementedError)
+        q = "UPDATE CartTests SET "
+        q += f"fkColdCarts={cartTest.configId}"
+        if cartTest.cartAssyId is not None:
+            q += f", fkCartAssembly={cartTest.cartAssyId}"
+        q += f", fkSoftwareVersion={cartTest.fkSoftwareVersion}"
+        q += f", fkTestType={cartTest.fkTestType}"
+        q += f", fkTestSystem={cartTest.fkTestSystem}"
+        if cartTest.timeStamp:
+            q += f", Timestamp='{cartTest.timeStamp.strftime(self.DB.TIMESTAMP_FORMAT)}'"
+        else:
+            q += f", Timestamp='{datetime.now().strftime(self.DB.TIMESTAMP_FORMAT)}'"
+        q += f", Description='{cartTest.description}'"
+        q += f", Operator='{cartTest.operator}'"
+        q += f", DewarID='{cartTest.dewarID}'"
+        q += f" WHERE keyCartTest={cartTest.key}"
+        return self.DB.execute(q, commit = True)
     
     def delete(self, keyCartTest:int):
         """
