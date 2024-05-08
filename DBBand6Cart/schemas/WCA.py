@@ -19,13 +19,34 @@ from datetime import datetime
 # 	PRIMARY KEY (`keyWCAs`) USING BTREE
 # )
 
+
+# CREATE TABLE `LOParams` (
+# 	`keyLOParams` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+# 	`fkWCAs` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+# 	`FreqLO` DECIMAL(10,6) NOT NULL DEFAULT '0.000000' COMMENT 'LO frequency GHz',
+# 	`TS` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+# 	`VDP0` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'power amp drain bias V',
+# 	`VDP1` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'power amp drain bias V',
+# 	`VGP0` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'power amp gate bias V',
+# 	`VGP1` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'power amp gate bias V',
+# 	`AttenP0` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'power amp attenuation dB',
+# 	`AttenP1` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'power amp attenuation dB',
+# 	`VDAMC` FLOAT(4,2) NULL DEFAULT NULL COMMENT 'AMC control drain for prototype carts V',
+# 	PRIMARY KEY (`keyLOParams`) USING BTREE,
+# 	INDEX `WCA` (`fkWCAs`) USING BTREE
+# )
+
+
+
 # The subset of columns to read/write:
 COLUMNS = (
     'keyWCAs', 
     'TS', 
     'SN', 
     'FloYIG',
-    'FhiYIG'
+    'FhiYIG',
+    'VGP0',
+    'VGP1'
 )
 
 class WCA(BaseModel):
@@ -36,3 +57,5 @@ class WCA(BaseModel):
     serialNum: str
     ytoLowGHz: float
     ytoHighGHz: float
+    VGp0: float
+    VGp1: float

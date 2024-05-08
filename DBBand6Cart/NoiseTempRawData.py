@@ -23,16 +23,21 @@ class NoiseTempRawData(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
-    def create(self, record: NoiseTempRawDatum):
+    def create(self, records: List[NoiseTempRawDatum]):
         """
-        Create records in WarmIF_Noise_Data
+        Create records in NT_Raw_Data
         :param record: NoiseTempRawDatum record
         """
         # make column list, skipping keyCartTest:
-        q = f"INSERT INTO NT_Raw_Data({','.join(COLUMNS[1:])}) VALUES ({record.getInsertVals()});"
+        q = f"INSERT INTO NT_Raw_Data({','.join(COLUMNS[1:])}) VALUES "
+        first = True
+        for rec in records:
+            if not first:
+                q += ","
+            first = False            
+            q += f"({rec.getInsertVals()})"
+
         self.DB.execute(q, commit = True)
-        record.key = getLastInsertId(self.DB)
-        return record.key
         
     def read(self, fkCartTest: int, dutType: DUT_Type = DUT_Type.Unknown, freqLO: float = None):
         """

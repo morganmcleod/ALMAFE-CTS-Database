@@ -122,7 +122,7 @@ class NoiseTempRawDatum(BaseModel):
     PLL_Assm_T: float = 0
     PA_A_Drain_V: float = 0
     PA_B_Drain_V: float = 0
-    Source_Power : float = 0
+    Source_Power: float = 0
 
     def getNTText(self, short: bool = True):
         ret = f"pol{self.Pol}: {self.Phot_USB:.2f}, {self.Pcold_USB:.2f}, {self.Phot_LSB:.2f}, {self.Pcold_LSB:.2f}"

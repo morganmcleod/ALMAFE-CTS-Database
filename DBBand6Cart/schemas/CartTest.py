@@ -81,3 +81,6 @@ class CartTest(BaseModel):
                 swVer += ' '
             swVer += 'fk:' + str(self.fkSoftwareVersion)
         return swVer   
+    
+    def getText(self) -> str:
+        return f"CartTest key={self.key}, config={self.configId}, fkTestType={self.fkTestType}, description={self.description}"
