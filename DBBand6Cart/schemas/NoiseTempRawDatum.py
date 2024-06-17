@@ -39,10 +39,14 @@ from enum import Enum
 # 	`PLL_Assm_T` FLOAT NULL DEFAULT NULL,
 # 	`PA_A_Drain_V` FLOAT NULL DEFAULT NULL,
 # 	`PA_B_Drain_V` FLOAT NULL DEFAULT NULL,
-# 	`Source_Power` FLOAT UNSIGNED NULL DEFAULT NULL COMMENT 'BEAST PA_A on CTS, Keithly Current on MTS',
+# 	`Source_Power_USB` FLOAT UNSIGNED NULL DEFAULT NULL COMMENT 'BEAST PA_A on CTS, Keithly Current on MTS',
+# 	`Source_Power_LSB` FLOAT NOT NULL DEFAULT '1',
+# 	`Is_LO_Unlocked` TINYINT(4) NOT NULL DEFAULT '1',
+# 	`Is_RF_Unlocked` TINYINT(4) NOT NULL DEFAULT '1',
 # 	`flag` INT(10) NOT NULL DEFAULT '1',
 # 	`OldfkCartTest` INT(10) NOT NULL DEFAULT '0',
-# 	PRIMARY KEY (`keyNT_Raw_Data`) USING BTREE
+# 	PRIMARY KEY (`keyNT_Raw_Data`) USING BTREE,
+# 	INDEX `fkCartTest` (`fkCartTest`) USING BTREE
 # )
 
 class DUT_Types(Enum):
@@ -84,7 +88,10 @@ COLUMNS = (
     'PLL_Assm_T',
     'PA_A_Drain_V',
     'PA_B_Drain_V',
-    'Source_Power' 
+    'Source_Power_USB',
+    'Source_Power_LSB',
+    'Is_LO_Unlocked',
+    'Is_RF_Unlocked'
 )
 
 class NoiseTempRawDatum(BaseModel):
@@ -122,8 +129,11 @@ class NoiseTempRawDatum(BaseModel):
     PLL_Assm_T: float = 0
     PA_A_Drain_V: float = 0
     PA_B_Drain_V: float = 0
-    Source_Power: float = 0
-
+    Source_Power_USB: float = 0
+    Source_Power_LSB: float = 0
+    Is_LO_Unlocked: bool = False
+    Is_RF_Unlocked: bool = False
+    
     def getNTText(self, short: bool = True):
         ret = f"pol{self.Pol}: {self.Phot_USB:.2f}, {self.Pcold_USB:.2f}, {self.Phot_LSB:.2f}, {self.Pcold_LSB:.2f}"
         if short:
@@ -142,7 +152,7 @@ class NoiseTempRawDatum(BaseModel):
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()
-        return "{},{},'{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(
+        return "{},{},'{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(
             self.fkCartTest,
             self.fkDUT_Type.value,
             self.timeStamp,
@@ -175,5 +185,8 @@ class NoiseTempRawDatum(BaseModel):
             self.PLL_Assm_T,
             self.PA_A_Drain_V,
             self.PA_B_Drain_V,
-            self.Source_Power 
+            self.Source_Power_USB,
+            self.Source_Power_LSB,
+            1 if self.Is_LO_Unlocked else 0,
+            1 if self.Is_RF_Unlocked else 0
         )
