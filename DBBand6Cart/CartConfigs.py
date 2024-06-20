@@ -48,7 +48,7 @@ class CartConfigs(object):
 
         # for a specific serial number:
         if serialNum:
-            where += " AND CC.SN = '{:03d}'".format(int(serialNum))
+            where += " AND CC0.SN = '{:03d}'".format(int(serialNum))
         if where:
             q += " WHERE " + where
         q += " ORDER BY CC0.SN, CC0.keyColdCarts DESC;"
