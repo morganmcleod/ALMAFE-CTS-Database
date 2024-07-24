@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
+from schemas.DUT_Type import DUT_Type
 
 # CREATE TABLE `NT_Raw_Data` (
 # 	`keyNT_Raw_Data` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -49,10 +50,6 @@ from enum import Enum
 # 	INDEX `fkCartTest` (`fkCartTest`) USING BTREE
 # )
 
-class DUT_Types(Enum):
-    BAND6_CARTRIDGE = 0
-    MIXER_PREAMP = 1
-
 # from NT_Raw_Data:
 COLUMNS = ( 
     'keyNT_Raw_Data',
@@ -97,7 +94,7 @@ COLUMNS = (
 class NoiseTempRawDatum(BaseModel):
     key: int = 0                  # keyNT_Raw_Data normally assigned by the server on insert
     fkCartTest: int = 0
-    fkDUT_Type: DUT_Types = DUT_Types.BAND6_CARTRIDGE
+    fkDUT_Type: DUT_Type = DUT_Type.Band6_Cartridge
     timeStamp: datetime = None
     FreqLO: float = 0
     CenterIF: float = 0

@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 from math import log10
 import copy
+from schemas.DUT_Type import DUT_Type
 
 # CREATE TABLE `WarmIF_Noise_Data` (
 # 	`keyWarmIF_Noise_Data` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -37,14 +38,10 @@ COLUMNS = (
     'NoiseDiodeENR' 
 )
 
-class DUT_Types(Enum):
-    BAND6_CARTRIDGE = 0
-    MIXER_PREAMP = 1
-
 class WarmIFNoise(BaseModel):
     key: int = 0                  # keyWarmIF_Noise_Data normally assigned by the server on insert
     fkCartTest: int
-    fkDUT_Type: DUT_Types
+    fkDUT_Type: DUT_Type
     dataSet: int = 1
     timeStamp: datetime = None
     freqYig: float
