@@ -30,6 +30,7 @@ class TestTypeIds(Enum):
     OPTIMUM_BIAS = 12
     TOTAL_POWER = 13
     LO_WG_INTEGRITY = 14
+    Y_FACTOR = 15
     
 # schema for cartridge test types:
 class TestType(BaseModel):
