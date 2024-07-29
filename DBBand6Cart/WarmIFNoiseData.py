@@ -29,14 +29,14 @@ class WarmIFNoiseData(object):
         """
         if len(records) > 0:
             # make column list, skipping keyCartTest:
-            q = f"INSERT INTO WarmIF_Noise_Data({','.join(COLUMNS[1:])}) VALUES ("
+            q = f"INSERT INTO WarmIF_Noise_Data({','.join(COLUMNS[1:])}) VALUES "
             first = True
             for rec in records:
                 if not first:
                     q += ","
                 first = False
-                q += rec.getInsertVals()
-            q += ");"
+                q += "(" + rec.getInsertVals() + ")"
+            q += ";"
             self.DB.execute(q, commit = True)
     
     def read(self, fkCartTest:int, dutType:DUT_Type = DUT_Type.Unknown):

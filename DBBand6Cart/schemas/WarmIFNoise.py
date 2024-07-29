@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from math import log10
 import copy
-from schemas.DUT_Type import DUT_Type
+from .DUT_Type import DUT_Type
 
 # CREATE TABLE `WarmIF_Noise_Data` (
 # 	`keyWarmIF_Noise_Data` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,

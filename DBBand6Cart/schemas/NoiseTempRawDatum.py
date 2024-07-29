@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
-from schemas.DUT_Type import DUT_Type
+from .DUT_Type import DUT_Type
 
 # CREATE TABLE `NT_Raw_Data` (
 # 	`keyNT_Raw_Data` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
