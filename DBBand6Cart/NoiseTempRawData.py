@@ -95,7 +95,7 @@ class NoiseTempRawData(object):
         """
         q = f"SELECT MIN(TS), FreqLO FROM NT_Raw_Data WHERE fkCartTest={fkCartTest}"
         if dutType != DUT_Type.Unknown:
-            q += f" WHERE fkDUT_Type = {dutType.value}"
+            q += f" AND fkDUT_Type = {dutType.value}"
         q += " GROUP BY FreqLO;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
