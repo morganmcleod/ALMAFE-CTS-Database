@@ -5,7 +5,7 @@ from .schemas.WarmIFNoise import COLUMNS, WarmIFNoise
 from .schemas.DUT_Type import DUT_Type
 from .GetLastInsertId import getLastInsertId
 from datetime import datetime
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 class WarmIFNoiseData(object):
     """
@@ -22,7 +22,7 @@ class WarmIFNoiseData(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         
-    def create(self, records: list[WarmIFNoise]):
+    def create(self, records: List[WarmIFNoise]):
         """
         Create records in WarmIF_Noise_Data
         :param data: WarmIFNoise record
