@@ -34,8 +34,13 @@ COLUMNS = (
     'Attn',
     'Phot',
     'Pcold',
+    'Y_dB',
+    'TifCold',
+    'TifHot',
     'Ambient',
-    'NoiseDiodeENR' 
+    'NoiseDiodeENR',
+    'Gain_dB',
+    'Tr_K'
 )
 
 class WarmIFNoise(BaseModel):
@@ -48,8 +53,12 @@ class WarmIFNoise(BaseModel):
     atten: float
     pHot: float
     pCold: float
+    tIFHot: float
+    tIFCold: float
     tAmbient: float
     noiseDiodeENR: float
+    gainDb: float = 0
+    TrK: float = 0
     
     def getInsertVals(self):
         """get a string formatted for an INSERT query
