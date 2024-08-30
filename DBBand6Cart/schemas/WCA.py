@@ -52,10 +52,10 @@ COLUMNS = (
 class WCA(BaseModel):
     """A record in the DBBand6Cart.WCAs table
     """
-    key: int                        # keyWCAs is assigned by the database on insert.
-    timeStamp: datetime
-    serialNum: str
-    ytoLowGHz: float
-    ytoHighGHz: float
-    VGp0: float
-    VGp1: float
+    key: int = 0                       # keyWCAs is assigned by the database on insert.
+    timeStamp: datetime = None
+    serialNum: str = ""
+    ytoLowGHz: float = 0
+    ytoHighGHz: float = 0
+    VGp0: float = 0
+    VGp1: float = 0
