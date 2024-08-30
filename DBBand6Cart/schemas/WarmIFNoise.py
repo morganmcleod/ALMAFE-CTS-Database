@@ -34,13 +34,10 @@ COLUMNS = (
     'Attn',
     'Phot',
     'Pcold',
-    'Y_dB',
+    'Ambient',
     'TifCold',
     'TifHot',
-    'Ambient',
-    'NoiseDiodeENR',
-    'Gain_dB',
-    'Tr_K'
+    'NoiseDiodeENR'
 )
 
 class WarmIFNoise(BaseModel):
@@ -53,19 +50,17 @@ class WarmIFNoise(BaseModel):
     atten: float
     pHot: float
     pCold: float
-    tIFHot: float
-    tIFCold: float
     tAmbient: float
+    tIFCold: float = 0
+    tIFHot: float = 0
     noiseDiodeENR: float
-    gainDb: float = 0
-    TrK: float = 0
     
     def getInsertVals(self):
         """get a string formatted for an INSERT query
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()        
-        return "{},{},{},'{}',{},{},{},{},{},{}".format(
+        return "{},{},{},'{}',{},{},{},{},{},{},{},{}".format(
             self.fkCartTest,
             self.fkDUT_Type.value, 
             self.dataSet, 
@@ -75,6 +70,8 @@ class WarmIFNoise(BaseModel):
             self.pHot, 
             self.pCold,
             self.tAmbient,
+            self.tIFCold,
+            self.tIFHot,
             self.noiseDiodeENR
         )
 

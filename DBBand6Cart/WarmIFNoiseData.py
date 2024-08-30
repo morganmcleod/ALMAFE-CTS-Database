@@ -7,6 +7,13 @@ from .schemas.DUT_Type import DUT_Type
 from datetime import datetime
 from typing import Dict, Union, List
 
+EXTENDED_COLUMNS = COLUMNS
+EXTENDED_COLUMNS += (
+    'Y_dB',
+    'Gain_dB',
+    'Tr_K'
+)
+
 class WarmIFNoiseData(object):
     """
     Create, Read, Update, Delete records in dbBand6Cart.WarmIF_Noise_Data
@@ -51,7 +58,7 @@ class WarmIFNoiseData(object):
         """
 
         if dutType == DUT_Type.Band6_MxrPreampAssys:
-            q = f"SELECT {','.join(COLUMNS[0:7])}, "
+            q = f"SELECT {','.join(EXTENDED_COLUMNS[0:7])}, "
             q += "10.0 * LOG10(Phot) + 30 AS `Phot_dBm`, "
             q += "10.0 * LOG10(Pcold) + 30 AS `Pcold_dBm`, "
             q += "10.0 * LOG10(Phot/Pcold) AS `Y_dB`, "
@@ -69,7 +76,7 @@ class WarmIFNoiseData(object):
             return DataFrame(rows, columns = COLUMNS)
         
         elif dutType == DUT_Type.Band6_Cartridge:
-            q = f"SELECT {','.join(COLUMNS[0:7])}, "
+            q = f"SELECT {','.join(EXTENDED_COLUMNS[0:7])}, "
             q += "10.0 * LOG10(Phot) + 30 AS `Phot_dBm`, "
             q += "10.0 * LOG10(Pcold) + 30 AS `Pcold_dBm`, "
             q += "10.0 * LOG10(Phot/Pcold) AS `Y_dB`, "
@@ -85,7 +92,7 @@ class WarmIFNoiseData(object):
             rows = self.DB.fetchall()
             if not rows:
                 return None
-            df = DataFrame(rows, columns = COLUMNS)
+            df = DataFrame(rows, columns = EXTENDED_COLUMNS)
             df['Gain_dB'] = 10.0 * np.log10(10 ** (df['Y_dB'] / 10) / (df['TifHot'] - df['Ambient']) / self.BOLTZMANN / self.BW_NOISE)
             df['Tr_K'] = (df['TifHot'] - 10 ** (df['Y_dB'] / 10) * df['Ambient']) / (10 ** (df['Y_dB'] / 10) - 1)
             return df
