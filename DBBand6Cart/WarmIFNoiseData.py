@@ -73,7 +73,7 @@ class WarmIFNoiseData(object):
             rows = self.DB.fetchall()
             if not rows:
                 return None
-            return DataFrame(rows, columns = COLUMNS)
+            return DataFrame(rows, columns = EXTENDED_COLUMNS)
         
         elif dutType == DUT_Type.Band6_Cartridge:
             q = f"SELECT {','.join(EXTENDED_COLUMNS[0:7])}, "
