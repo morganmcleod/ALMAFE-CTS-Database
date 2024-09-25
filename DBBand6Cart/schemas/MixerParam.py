@@ -23,6 +23,7 @@ from datetime import datetime
 COLUMNS = (
     'keyMixerParams',
     'fkMixerChips',
+    'Temperature',
     'FreqLO',
     'TS',
     'VJ',
@@ -35,6 +36,7 @@ class MixerParam(BaseModel):
     """
     key:int = 0                     # keyMixerParams is assigned by the database on insert.
     fkMixerChips: int = 0           # this default is fine when interpolating.
+    Temperature: float = 4.0
     FreqLO: float
     timeStamp: datetime = None
     VJ:float
@@ -46,8 +48,9 @@ class MixerParam(BaseModel):
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()        
-        return "{},{},{},'{}',{},{}".format(
+        return "{},{},{},'{}',{},{},{}".format(
             self.fkMixerChips,
+            self.Temperature,
             self.FreqLO,
             self.timeStamp,
             self.VJ,

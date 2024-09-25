@@ -36,7 +36,7 @@ class MixerParams():
             # using a dict to cache FreqLOs seen and their rows:
             keep = {}
             for row in rows:
-                FreqLO = row[2]
+                FreqLO = row[3]
                 if FreqLO not in keep.keys():
                     keep[FreqLO] = row
             # now we have only one row per FreqLO:
@@ -45,11 +45,12 @@ class MixerParams():
         return [MixerParam(
             key = row[0],
             fkMixerChips = row[1],
-            FreqLO = row[2],
-            timeStamp = makeTimeStamp(row[3]),
-            VJ = row[4],
-            IJ = row[5],
-            IMAG = row[6]
+            Temperature = row[2],
+            FreqLO = row[3],
+            timeStamp = makeTimeStamp(row[4]),
+            VJ = row[5],
+            IJ = row[6],
+            IMAG = row[7]
         ) for row in rows]
 
     def create(self, keyChip:int, mixerParams:List[MixerParam]) -> bool:
