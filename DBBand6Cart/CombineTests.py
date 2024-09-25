@@ -41,7 +41,7 @@ class CombineTests(object):
             try:
                 dutType = DUT_Type(row.fkDutType)
             except:
-                raise ValueError(f"SelectTests.create: fkDutType '{row.fkDutType}' not supported")
+                raise ValueError(f"CombineTests.create: fkDutType '{row.fkDutType}' not supported")
 
             if values:
                 values += ","
