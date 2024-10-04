@@ -72,7 +72,7 @@ class BPCenterPowers():
     
     def readCounts(self):
         # returns dict {(testId, keyBeamPattern): {numCenterPowers, timeStamp}}
-        q = """SELECT CT.keyCartTest, BP.keyBeamPattern, COUNT(CP.keyBP_Center_Pwrs), CT.Timestamp
+        q = """SELECT CT.keyCartTest, BP.keyBeamPattern, BP.FreqCarrier, BP.TimeStamp, COUNT(CP.keyBP_Center_Pwrs)
         FROM CartTests AS CT JOIN BeamPatterns AS BP ON CT.keyCartTest = BP.fkCartTest
         JOIN BP_Center_Pwrs AS CP ON BP.keyBeamPattern = CP.fkBeamPatterns
         WHERE CP.ScanComplete = 1
@@ -85,8 +85,9 @@ class BPCenterPowers():
             return None
         else:
             return {(row[0], row[1]) : {
-                'numMeasurements': row[2], 
-                'timeStamp': makeTimeStamp(row[3])
+                'freqCarrier': row[2],
+                'timeStamp': makeTimeStamp(row[3]),
+                'numMeasurements': row[4]                
             } for row in rows}
     
     def isNewerData(self, timeStamp: datetime) -> bool:

@@ -79,7 +79,7 @@ class BeamPatterns():
         ) for row in rows]
 
     def readCarrierFreqs(self, fkParentTest:int) -> List[CombineTestsRecord]:
-        q = f"SELECT MIN(TimeStamp), FreqCarrier FROM BeamPatterns WHERE fkCartTest={fkParentTest} GROUP BY FreqCarrier;"
+        q = f"SELECT MIN(TimeStamp), keyBeamPattern, FreqCarrier FROM BeamPatterns WHERE fkCartTest={fkParentTest} GROUP BY FreqCarrier;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
@@ -91,9 +91,9 @@ class BeamPatterns():
                 fkParentTest = fkParentTest,
                 fkDutType = 0,
                 timeStamp = makeTimeStamp(row[0]),  # MIN(TimeStamp)
-                path0_TestId = 0,
-                path1 = str(row[1]),                # frequency
-                text = f"{row[1]}"                  # frequency
+                path0_TestId = row[1],              # keyBeamPattern
+                path1 = str(row[2]),                # frequency
+                text = f"{row[2]}"                  # frequency
             ) for row in rows]
 
     def readScans(self, fkParentTest: int = 0, freqCarrier: float = 0.0, keyBeamPattern: int = None) -> List[CombineTestsRecord]:
