@@ -31,6 +31,9 @@ class TestTypeIds(Enum):
     TOTAL_POWER = 13
     LO_WG_INTEGRITY = 14
     Y_FACTOR = 15
+    IV_CURVES = 16
+    MAGNET_OPTIMIZATION = 17
+    MIXER_DEFLUX = 18
     
 # schema for cartridge test types:
 class TestType(BaseModel):
