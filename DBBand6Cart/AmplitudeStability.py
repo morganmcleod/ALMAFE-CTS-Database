@@ -113,7 +113,7 @@ class AmplitudeStability():
         :return list[int]
         """
         q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM AmplitudeStability GROUP BY fkCartTest ORDER BY fkCartTest;"""
+            FROM AmplitudeStability GROUP BY fkCartTest, fkRawData ORDER BY fkCartTest;"""
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
