@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Union, Optional
 
 class TestResultPlot(BaseModel):
-    id: int = 0
+    key: int = 0
     plotBinary: Optional[bytes] = None
     contentType: str = "image/png"
     description: str = None
@@ -76,7 +76,7 @@ class TestResultPlots(object):
         if not rows:
             return None
         else:
-            return [TestResultPlot(id = row[0],
+            return [TestResultPlot(key = row[0],
                                    contentType = row[1],
                                    description = row[2],
                                    timeStamp = makeTimeStamp(row[3]),
@@ -91,7 +91,7 @@ class TestResultPlots(object):
         :return True if successful
         """
         q = """UPDATE TestResultPlots SET PlotBinary = %s, Timestamp = %s, Description = %s, ContentType = %s
-               WHERE keyTestResultPlot = {};""".format(record.id)
+               WHERE keyTestResultPlot = {};""".format(record.key)
         params = (record.plotBinary, record.timeStamp, record.description, record.contentType)
         
         if self.DB.execute(q, params, commit = True):

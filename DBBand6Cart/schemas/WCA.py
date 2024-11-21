@@ -1,6 +1,7 @@
 """Schema for records of the DBBand6Cart.WCAs table
 """
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 # CREATE TABLE `WCAs` (
@@ -53,7 +54,7 @@ class WCA(BaseModel):
     """A record in the DBBand6Cart.WCAs table
     """
     key: int = 0                       # keyWCAs is assigned by the database on insert.
-    timeStamp: datetime = None
+    timeStamp: Optional[datetime] = None
     serialNum: str = ""
     ytoLowGHz: float = 0
     ytoHighGHz: float = 0

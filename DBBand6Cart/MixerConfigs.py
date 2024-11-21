@@ -62,7 +62,7 @@ class MixerConfigs(object):
         if not rows:
             return None
 
-        return [MixerConfig(id = row[0],
+        return [MixerConfig(key = row[0],
                             serialNum = str(row[1]),
                             timeStamp = makeTimeStamp(row[2]))
                 for row in rows if row[1]]
@@ -94,7 +94,7 @@ class MixerConfigs(object):
             return None
         
         return MixerKeys(
-            id = row[0],
+            key = row[0],
             snMixer = str(row[1]) if row[1] else '0',
             keyChip1 = row[2] if row[2] else 0,
             keyChip2 = row[3] if row[3] else 0,

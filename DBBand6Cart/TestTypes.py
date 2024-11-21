@@ -45,7 +45,7 @@ class TestTypes(object):
             return None
         else:
             # return list of TestType:            
-            return [TestType(id = row[0], 
+            return [TestType(key = row[0], 
                              name = row[1], 
                              description = row[2]
                     ) for row in rows]

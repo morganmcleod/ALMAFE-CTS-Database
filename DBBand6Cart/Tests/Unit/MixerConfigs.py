@@ -27,29 +27,27 @@ class test_MixerConfigs(unittest.TestCase):
             # use subTest so loop will continue after first failure:
             with self.subTest(config = config):
                 self.assertIsInstance(config, MixerConfig)
-                self.assertTrue(config.id > 0)
+                self.assertTrue(config.key > 0)
                 self.assertTrue(len(config.serialNum) > 0)
                 self.assertIsInstance(config.timeStamp, datetime)
         
         # retrieve and test a specific one:
-        records = self.obj.read(configs[0].id)
+        records = self.obj.read(configs[0].key)
         record = records[0]
         self.assertIsInstance(config, MixerConfig)
-        self.assertTrue(record.id > 0)
+        self.assertTrue(record.key > 0)
         self.assertTrue(len(record.serialNum) > 0)
         self.assertIsInstance(record.timeStamp, datetime)
         
         # retrieve keys:
         for config in configs:
-            keys = self.obj.readKeys(config.id)
-            # use subTest so loop will continue after first failure:
-            with self.subTest(keys = keys):
-                if keys:           
-                    self.assertIsInstance(keys, MixerKeys)
-                    self.assertTrue(len(keys.snMixer) > 0)
-                    self.assertTrue(keys.id > 0)
-                    self.assertTrue(keys.keyChip1 > 0)
-                    self.assertTrue(keys.keyChip2 > 0)
-                    self.assertTrue(keys.keyPreamp1 > 0)
-                    self.assertTrue(keys.keyPreamp2 > 0)        
-                    self.assertIsInstance(keys.timeStamp, datetime)
+            keys = self.obj.readKeys(config.key)
+            if keys is not None:
+                self.assertIsInstance(keys, MixerKeys)
+                self.assertTrue(len(keys.snMixer) > 0)
+                self.assertTrue(keys.key > 0)
+                self.assertTrue(keys.keyChip1 > 0)
+                self.assertTrue(keys.keyChip2 > 0)
+                self.assertTrue(keys.keyPreamp1 > 0)
+                self.assertTrue(keys.keyPreamp2 > 0)        
+                self.assertIsInstance(keys.timeStamp, datetime)

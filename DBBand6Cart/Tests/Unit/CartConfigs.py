@@ -28,25 +28,25 @@ class test_CartConfigs(unittest.TestCase):
             # use subTest so loop will continue after first failure:
             with self.subTest(config = config):
                 self.assertIsInstance(config, CartConfig)
-                self.assertTrue(config.id > 0)
+                self.assertTrue(config.key > 0)
                 self.assertTrue(len(config.serialNum) > 0)
                 self.assertIsInstance(config.timeStamp, datetime)
         
         # retrieve and test a specific one:
-        records = self.obj.read(configs[0].id)
+        records = self.obj.read(configs[0].key)
         record = records[0]
         self.assertIsInstance(config, CartConfig)
-        self.assertTrue(record.id > 0)
+        self.assertTrue(record.key > 0)
         self.assertTrue(len(record.serialNum) > 0)
         self.assertIsInstance(record.timeStamp, datetime)
 
         for config in configs:
-            keys = self.obj.readKeys(config.id, 0)
+            keys = self.obj.readKeys(config.key, 0)
             # use subTest so loop will continue after first failure:
             with self.subTest(keys = keys):
                 if keys:           
                     self.assertIsInstance(keys, CartKeys)
-                    self.assertTrue(keys.id > 0)
+                    self.assertTrue(keys.key > 0)
                     self.assertTrue(keys.keyMixer > 0)
                     self.assertTrue(keys.keyChip1 > 0)
                     self.assertTrue(keys.keyChip2 > 0)

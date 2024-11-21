@@ -18,9 +18,9 @@ class test_Mixers(unittest.TestCase):
         self.driver.disconnect()
    
     def test_readMixerParams(self):
-        for id in (1178, 945, 1196, 1148, 1095, 1197, 1096, 1195, 1117, 1933):
-            with self.subTest(id = id):
-                 keys = self.mixerConfigs.readKeys(id)
+        for key in (1178, 945, 1196, 1148, 1095, 1197, 1096, 1195, 1117, 1933):
+            with self.subTest(key = key):
+                 keys = self.mixerConfigs.readKeys(key)
                  if keys:
                     rows = self.mixerParams.read(keys.keyChip1)
                     row = rows[0]

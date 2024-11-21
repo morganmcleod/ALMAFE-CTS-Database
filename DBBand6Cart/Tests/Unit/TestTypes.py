@@ -25,13 +25,13 @@ class test_TestTypes(unittest.TestCase):
             # use subTest so loop will continue after first failure:
             with self.subTest(testType = testType):
                 self.assertIsInstance(testType, TestType)
-                self.assertTrue(testType.id > 0)
+                self.assertTrue(testType.key > 0)
                 self.assertTrue(len(testType.name) > 0)
                 self.assertTrue(len(testType.description) > 0)
             
         # retrieve and test a specific one: 
-        testType = self.obj.read(testTypes[0].id)[0]
+        testType = self.obj.read(testTypes[0].key)[0]
         self.assertIsInstance(testType, TestType)
-        self.assertTrue(testType.id > 0)
+        self.assertTrue(testType.key > 0)
         self.assertTrue(len(testType.name) > 0)
         self.assertTrue(len(testType.description) > 0)

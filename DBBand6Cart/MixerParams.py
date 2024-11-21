@@ -21,7 +21,7 @@ class MixerParams():
     def read(self, keyMixerChips:int, latestOnly:bool = True) -> List[MixerParam]:
         """ Read mixer paramters for a given mixer chip
 
-        :param int keyMixerChips: id of mixer chip
+        :param int keyMixerChips: key of mixer chip
         :param bool latestOnly: If true, only get the most recent set, defaults to True
         :return List[MixerParam]
         """

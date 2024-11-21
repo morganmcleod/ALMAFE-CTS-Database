@@ -62,6 +62,7 @@ class test_MixerTests(unittest.TestCase):
             configId = 1234,
             fkSoftwareVersion = 5678,
             fkTestType = 1,
+            fkTestSystem = 0,
             description = 'record created by test_MixerTests',
             operator = 'robot'
         )            

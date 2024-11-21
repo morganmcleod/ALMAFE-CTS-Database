@@ -39,6 +39,6 @@ class TestTypeIds(Enum):
 class TestType(BaseModel):
     """A record in the DBBand6Cart.TestTypes table
     """
-    id: int
+    key: int
     name: str
     description: str = ''

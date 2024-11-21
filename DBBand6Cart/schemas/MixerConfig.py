@@ -26,12 +26,12 @@ from datetime import datetime
 class MixerConfig(BaseModel):
     """A record in the DBBand6Cart.MxrPreampAssys table
     """
-    id: int = 0                             # keyMxrPreampAssys is assigned by the database on insert.
+    key: int = 0                            # keyMxrPreampAssys is assigned by the database on insert.
     serialNum: str
     timeStamp: datetime
 
 class MixerKeys(BaseModel):
-    id: int                                 # keyMixerPreampAssys
+    key: int                                # keyMixerPreampAssys
     keyChip1: int                           # keyMixerChips
     keyChip2: int                           # keyMixerChips
     keyPreamp1: int                         # keyPreamps accessed via PreampPairs

@@ -59,7 +59,7 @@ class CartConfigs(object):
             return None
 
         return [CartConfig(
-            id = row[0],
+            key = row[0],
             serialNum = row[1] if row[1] else '',
             ESN0 = row[2] if row[2] else '',
             ESN1 = row[3] if row[3] else '',
@@ -93,7 +93,7 @@ class CartConfigs(object):
         if not row:
             return None
         return CartKeys(
-            id = row[0],
+            key = row[0],
             keyMixer = row[1],
             snMixer = row[2],
             keyChip1 = row[3],

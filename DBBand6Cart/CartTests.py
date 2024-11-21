@@ -13,7 +13,11 @@ class CartTests(object):
 
     Each record represents a measurement initiated by the CTS user.
     """
-    def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
+    def __init__(self, 
+            connectionInfo:dict = None, 
+            driver:DriverMySQL = None, 
+            defaultFkTestSystem = None
+        ):
         """ Constructor
 
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
@@ -22,14 +26,17 @@ class CartTests(object):
         assert driver or connectionInfo
         self.DB = driver if driver else DriverMySQL(connectionInfo)
         # string which gets reused below:
-        self.queryColumns = ",".join(['CT.' + name for name in COLUMNS])
-        # load the default value for fkTestSystem:
-        try:
-            config = configparser.ConfigParser()
-            config.read('ALMAFE-CTS-Database.ini')
-            self.defaultFkTestSystem = int(config['CartTests']['fkTestSystem'])
-        except:
-            self.defaultFkTestSystem = 0
+        self.queryColumns = ",".join(['CT.' + name for name in COLUMNS])        
+        # load the default value for fkTestSystem:        
+        if defaultFkTestSystem is not None:
+            self.defaultFkTestSystem = defaultFkTestSystem
+        else:
+            try:
+                config = configparser.ConfigParser()
+                config.read('ALMAFE-CTS-Database.ini')
+                self.defaultFkTestSystem = int(config['CartTests']['fkTestSystem'])
+            except:
+                self.defaultFkTestSystem = 0
         
     def create(self, cartTest:CartTest) -> Optional[int]:
         """

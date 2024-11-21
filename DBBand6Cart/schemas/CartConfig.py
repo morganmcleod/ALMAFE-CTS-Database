@@ -78,7 +78,7 @@ from datetime import datetime
 class CartConfig(BaseModel):
     """A record in the DBBand6Cart.ColdCarts table
     """
-    id: int = 0                             # keyColdCarts is assigned by the database on insert.
+    key: int = 0                            # keyColdCarts is assigned by the database on insert.
     serialNum: str
     ESN0: str
     ESN1: str
@@ -87,7 +87,7 @@ class CartConfig(BaseModel):
 class CartKeys(BaseModel):
     """This data model collects the child record keys, serial numbers, and useful metadata
     """
-    id: int                                 # keyColdCarts
+    key: int                                # keyColdCarts
     keyMixer: int                           # keyMixerPreampAssys
     keyChip1: int                           # keyMixerChips
     keyChip2: int                           # keyMixerChips

@@ -21,7 +21,7 @@ class PreampParams():
     def read(self, keyPreamp:int, latestOnly:bool = True) -> List[PreampParam]:
         """ Read preamnp paramters for a given preamp
 
-        :param int keyPreamp: id of preamp
+        :param int keyPreamp: key of preamp
         :param bool latestOnly: If true, only get the most recent set, defaults to True
         :return List[PreampParam]
         """
