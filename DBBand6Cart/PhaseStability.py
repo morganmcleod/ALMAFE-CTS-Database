@@ -87,7 +87,7 @@ class PhaseStability():
         ) for row in rows]
     
     def readSubTests(self, fkParentTest:int) -> List[CombineTestsRecord]:
-        q = f"SELECT MIN(TS), FreqCarrier, Pol, SB FROM PhaseDrift_Calc_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO, Pol, SB;"
+        q = f"SELECT MIN(TS), fkRawData, FreqCarrier, Pol, SB FROM PhaseDrift_Calc_Data WHERE fkCartTest={fkParentTest} GROUP BY FreqLO, Pol, SB;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
@@ -101,9 +101,9 @@ class PhaseStability():
                 timeStamp = makeTimeStamp(row[0]),  # MIN(TimeStamp)
                 path0_TestId = 0,
                 path1 = str(row[1]),
-                path2 = f"{row[2]} {row[3]}",
-                text = f"{row[1]}",
-                description = f"pol{row[2]} {'LSB' if row[3] == 1 else 'USB'}"
+                path2 = None,
+                text = f"{row[2]}",
+                description = f"pol{row[3]} {'USB' if row[4] == 1 else 'LSB'}"
             ) for row in rows]
 
     def readCartTests(self):
@@ -113,8 +113,8 @@ class PhaseStability():
         TODO: this query would benefit from an index on fkCartTest.
         :return list[int]
         """
-        q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM PhaseDrift_Calc_Data GROUP BY fkCartTest ORDER BY fkCartTest;"""
+        q = """SELECT fkCartTest, COUNT(DISTINCT fkRawData) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS
+            FROM PhaseDrift_Calc_Data GROUP BY fkCartTest;"""
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:

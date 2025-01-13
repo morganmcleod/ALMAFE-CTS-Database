@@ -86,7 +86,7 @@ class AmplitudeStability():
         ) for row in rows]
     
     def readSubTests(self, fkParentTest:int) -> List[CombineTestsRecord]:
-        q = f"SELECT MIN(TS), FreqLO, Pol, SB FROM AmplitudeStability WHERE fkCartTest={fkParentTest} GROUP BY FreqLO, Pol, SB;"
+        q = f"SELECT MIN(TS), fkRawData, FreqLO, Pol, SB FROM AmplitudeStability WHERE fkCartTest={fkParentTest} GROUP BY FreqLO, Pol, SB;"
         
         self.DB.execute(q)
         rows = self.DB.fetchall()
@@ -100,9 +100,9 @@ class AmplitudeStability():
                 timeStamp = makeTimeStamp(row[0]),  # MIN(TimeStamp)
                 path0_TestId = 0,
                 path1 = str(row[1]),
-                path2 = f"{row[2]} {row[3]}",
-                text = f"{row[1]}",
-                description = f"pol{row[2]} {'LSB' if row[3] == 1 else 'USB'}"
+                path2 = None,
+                text = f"{row[2]}",
+                description = f"pol{row[3]} {'USB' if row[4] == 1 else 'LSB'}"
             ) for row in rows]
 
     def readCartTests(self):
@@ -112,8 +112,8 @@ class AmplitudeStability():
         TODO: this query would benefit from an index on fkCartTest.
         :return list[int]
         """
-        q = """SELECT fkCartTest, COUNT(*) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS 
-            FROM AmplitudeStability GROUP BY fkCartTest, fkRawData ORDER BY fkCartTest;"""
+        q = """SELECT fkCartTest, COUNT(DISTINCT fkRawData) AS numMeas, MIN(TS) AS minTS, MAX(TS) AS maxTS
+            FROM AmplitudeStability GROUP BY fkCartTest;"""
         self.DB.execute(q)
         rows = self.DB.fetchall()
         if not rows:
