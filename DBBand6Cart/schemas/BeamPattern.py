@@ -3,6 +3,7 @@
 One self is created per raster scan.  
 There are up to five scans for each fkCartTest and FreqCarrier/FreqLO combination.
 """
+from enum import Enum
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -45,6 +46,14 @@ COLUMNS = (
 	'TimeStamp' 
 )
 
+class BP_Class(Enum):
+    POL0_COPOL = "pol0 copol"
+    POL1_COPOL = "pol1 copol"
+    POL0_XPOL = "pol0 xpol"
+    POL1_XPOL = "pol1 xpol"
+    POL0_180 = "pol0 180"
+    POL1_180 = "pol1 180"
+
 class BeamPattern(BaseModel):
     """A self in the DBBand6Cart.BeamPatterns table
     """
@@ -81,21 +90,23 @@ class BeamPattern(BaseModel):
             self.SourcePosition
         )
 
-    def getDescription(self):
+    def clasify(self) -> BP_Class:
         if self.Scan_Angle == self.Lvl_Angle:
             if self.SourcePosition == 3:
                 if self.Scan_Port in (1, 2):
-                    return "pol0 180"
+                    return BP_Class.POL0_180
                 elif self.Scan_Port in (3, 4):
-                    return "pol1 180"
+                    return BP_Class.POL1_180
             else:
                 if self.Scan_Port in (1, 2):
-                    return "pol0 copol"
+                    return BP_Class.POL0_COPOL
                 elif self.Scan_Port in (3, 4):
-                    return "pol1 copol"
+                    return BP_Class.POL1_COPOL
         else:
             if self.Scan_Port in (1, 2):
-                return "pol0 xpol"
+                return BP_Class.POL0_XPOL
             elif self.Scan_Port in (3, 4):
-                return "pol1 xpol"
+                return BP_Class.POL1_XPOL
 
+    def getDescription(self):
+        return self.clasify().value

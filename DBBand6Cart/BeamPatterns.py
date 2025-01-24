@@ -32,15 +32,20 @@ class BeamPatterns():
         record.key = getLastInsertId(self.DB)
         return record.key
                     
-    def read(self, keyId: int = None, fkCartTest: int = None) -> List[BeamPattern]:
+    def read(self, 
+            keyId: int = None, 
+            fkCartTest: int = None, 
+            sinceTimeStamp: datetime = None
+        ) -> List[BeamPattern]:
         """ Read one or more records
         
         Either keyId or fkCartTest must be provided.
         :param int keyId: of a specific record to read, defaults to None
         :param int fkCartTest: read all associated records, defaults to None
+        :param datetime sinceTimeStamp: read records newer than this, defaults to None
         :return List[BeamPattern]
         """
-        assert keyId or fkCartTest
+        assert keyId or fkCartTest or sinceTimeStamp
 
         q = f"SELECT {','.join(COLUMNS)} FROM BeamPatterns"
         where = ""
@@ -51,6 +56,8 @@ class BeamPatterns():
             if where:
                 where += " AND "
             where += f"fkCartTest = {fkCartTest}"
+        if sinceTimeStamp:
+            where += f"TimeStamp > '{sinceTimeStamp.strftime(self.DB.TIMESTAMP_FORMAT)}'"
 
         if where:
             q += " WHERE " + where
@@ -96,7 +103,11 @@ class BeamPatterns():
                 text = f"{row[2]}"                  # frequency
             ) for row in rows]
 
-    def readScans(self, fkParentTest: int = 0, freqCarrier: float = 0.0, keyBeamPattern: int = None) -> List[CombineTestsRecord]:
+    def readScans(self, 
+            fkParentTest: int = 0, 
+            freqCarrier: float = 0.0, 
+            keyBeamPattern: int = None
+        ) -> List[CombineTestsRecord]:
         q = f"SELECT {','.join(COLUMNS)} FROM BeamPatterns"
         where = ""
 
