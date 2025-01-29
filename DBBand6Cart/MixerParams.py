@@ -5,6 +5,8 @@ from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.MixerParam import MixerParam, COLUMNS
 from typing import List
 from datetime import datetime
+from bisect import bisect_left
+
 
 class MixerParams():
     """ Create, Read, Update, Delete records in table DBBand6Cart.MixerParams
@@ -73,3 +75,25 @@ class MixerParams():
 
         q += values + ";"
         return self.DB.execute(q, commit = True)
+
+    def interpolate(self, FreqLO:float, mixerParams:List[MixerParam]) -> MixerParam:
+        # workaround for Python 3.9
+        # 3.10 allows us to pass a key function to bisect_left
+        FreqLOs = [x.FreqLO for x in mixerParams]
+        
+        pos = bisect_left(FreqLOs, FreqLO)
+        if pos == 0:
+            return mixerParams[0]
+        if pos == len(mixerParams):
+            return mixerParams[-1]
+        if mixerParams[pos].FreqLO == FreqLO:
+            return mixerParams[pos]
+        before = mixerParams[pos - 1]
+        after = mixerParams[pos]
+        scale = (FreqLO - before.FreqLO) / (after.FreqLO - before.FreqLO)
+        return MixerParam(
+            FreqLO = FreqLO,
+            VJ = before.VJ + ((after.VJ - before.VJ) * scale),
+            IJ = before.IJ + ((after.IJ - before.IJ) * scale),
+            IMAG = before.IMAG + ((after.IMAG - before.IMAG) * scale)
+        )
