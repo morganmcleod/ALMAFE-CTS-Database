@@ -1,12 +1,12 @@
 """ Create, Read, Update, Delete table dbBand6Cart.CartTests records
 """    
+import configparser
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.CartTest import CartTest, COLUMNS
 from .GetLastInsertId import getLastInsertId
 from typing import List, Optional
 from datetime import datetime
-import configparser
 
 class CartTests(object):
     """ Create, Read, Update, Delete table dbBand6Cart.CartTests records

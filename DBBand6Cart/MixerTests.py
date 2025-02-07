@@ -1,5 +1,6 @@
 """ Create, Read, Update, Delete records in table DBBand6Cart.MixerTests
 """
+import configparser
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.MixerTest import MixerTest, COLUMNS
@@ -11,7 +12,11 @@ class MixerTests():
     Create, Read, Update, Delete table dbBand6Cart.MixerTests records
     Each record represents a measurement initiated by the MTS user.
     """
-    def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
+    def __init__(self, 
+            connectionInfo:dict = None, 
+            driver:DriverMySQL = None, 
+            defaultFkTestSystem = None
+        ):
         """
         Constructor
         :param connectionInfo: for initializing DriverMySQL if driver is not provided
@@ -22,13 +27,16 @@ class MixerTests():
         # string which gets reused below:
         self.queryColumns = ",".join(['MT.' + name for name in COLUMNS])
         # load the default value for fkTestSystem:
-        try:
-            config = configparser.ConfigParser()
-            config.read('ALMAFE-CTS-Database.ini')
-            self.defaultFkTestSystem = int(config['CartTests']['fkTestSystem'])
-        except:
-            self.defaultFkTestSystem = 0
-
+        if defaultFkTestSystem is not None:
+            self.defaultFkTestSystem = defaultFkTestSystem
+        else:
+            try:
+                config = configparser.ConfigParser()
+                config.read('ALMAFE-CTS-Database.ini')
+                self.defaultFkTestSystem = int(config['MixerTests']['fkTestSystem'])
+            except:
+                self.defaultFkTestSystem = 0
+                
     def create(self, mixerTest:MixerTest) -> int:
         """
         Create a new record in the MixerTests table
