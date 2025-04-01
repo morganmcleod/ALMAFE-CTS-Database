@@ -38,7 +38,7 @@ class MixerTest(BaseModel):
     configId: int                           # fkMxrPreampAssys
     fkSoftwareVersion: int = 0
     fkTestType: int
-    fkTestSystem: int
+    fkTestSystem: int = 0
     timeStamp: datetime = None
     description: str = ''
     operator: str = ''
