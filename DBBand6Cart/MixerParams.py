@@ -35,14 +35,20 @@ class MixerParams():
         
         # keep only the newest records for each FreqLO
         if latestOnly:
+            # track the newest timestamp seen:
+            latestTS = datetime.min
+
             # using a dict to cache FreqLOs seen and their rows:
             keep = {}
             for row in rows:
                 FreqLO = row[3]
                 if FreqLO not in keep.keys():
                     keep[FreqLO] = row
-            # now we have only one row per FreqLO:
-            rows = [keep[FreqLO] for FreqLO in keep.keys()]
+                    ts = makeTimeStamp(row[4])
+                    if ts > latestTS:
+                        latestTS = ts
+            # now we have only one row per FreqLO, filter for latest timestamp seen:
+            rows = [keep[FreqLO] for FreqLO in keep.keys() if makeTimeStamp(keep[FreqLO][4]) == latestTS]
 
         return [MixerParam(
             key = row[0],
