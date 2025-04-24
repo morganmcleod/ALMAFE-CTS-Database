@@ -56,8 +56,9 @@ class IVCurves():
             Vj = row[6],
             Ij = row[7],
             IFPower = row[8],
-            PumpPwr = row[9],
-            timeStamp = makeTimeStamp(row[10])
+            isPCold = True if row[9] else False,
+            PumpPwr = row[10],
+            timeStamp = makeTimeStamp(row[11])
         ) for row in rows]
     
     def create(self, points: list[IVCurvePoint]) -> bool:

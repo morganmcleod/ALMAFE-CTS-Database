@@ -13,9 +13,10 @@ from datetime import datetime
 # 	`Vj` FLOAT NULL DEFAULT NULL COMMENT 'Junction voltage, mV',
 # 	`Ij` FLOAT NULL DEFAULT NULL COMMENT 'Junction current, uA',
 # 	`IFPower` FLOAT NULL DEFAULT NULL COMMENT 'IF power, dBm.  BW varies by test system.',
-# 	`isOperatingPoint` SMALLINT(6) NULL DEFAULT NULL COMMENT 'Is this an operating point? (0 = true)',
-# 	`isPumped` SMALLINT(6) NULL DEFAULT NULL COMMENT 'Is this pumped IV data? (0 = true)',
-# 	`PumpPwr` FLOAT NULL DEFAULT NULL COMMENT 'LO pump power, as PAVD control value in 0-2.5',
+# 	`isPCold` TINYINT NULL DEFAULT NULL COMMENT 'Is IFPower measured on the cold load? (1 = true)',
+# 	`isOperatingPoint` TINYINT NULL DEFAULT NULL COMMENT 'Is this an operating point? (0 = true)',
+# 	`isPumped` TINYINT NULL DEFAULT NULL COMMENT 'Is this pumped IV data? (0 = true)',
+# 	`PumpPwr` FLOAT NULL DEFAULT NULL COMMENT 'LO pump power as percent of maximum LO PA control.',
 # 	`DateMeas` DATETIME NULL DEFAULT NULL COMMENT 'Measurement date',
 # 	`TS` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Timestamp when record created',
 # 	PRIMARY KEY (`keyMxrIVsweep`) USING BTREE
@@ -32,6 +33,7 @@ COLUMNS = (
     'Vj',
     'Ij',
     'IFPower',
+    'isPCold',
     'PumpPwr',
     'DateMeas'
 )
@@ -48,6 +50,7 @@ class IVCurvePoint(BaseModel):
     Vj: float
     Ij: float
     IFPower: float | None = None
+    isPCold: bool = False
     PumpPwr: float
     timeStamp: datetime = None
 
@@ -57,7 +60,7 @@ class IVCurvePoint(BaseModel):
         """
         if self.timeStamp is None:
             self.timeStamp = datetime.now()        
-        return "{},{},{},'{}',{},{},{},{},{},'{}'".format(
+        return "{},{},{},'{}',{},{},{},{},{},{},'{}'".format(
             self.fkMxrPreampAssys,
             self.fkMixerTest,
             self.FreqLO,
@@ -66,6 +69,7 @@ class IVCurvePoint(BaseModel):
             self.Vj,
             self.Ij,
             self.IFPower if self.IFPower is not None else 'NULL',
+            self.isPCold,
             self.PumpPwr,
             self.timeStamp
         )
