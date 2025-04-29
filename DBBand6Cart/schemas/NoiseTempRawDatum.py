@@ -143,8 +143,51 @@ class NoiseTempRawDatum(BaseModel):
 
     def getText(self):
         return self.getNTText() + "\n" + self.getIRText() + f"\natten={self.IF_Attn}, ambient={self.TRF_Hot}, tColdEff={self.TColdLoad}"
-    
-    def getInsertVals(self):
+
+    def getVals(self) -> list[any]:
+        if self.timeStamp is None:
+            self.timeStamp = datetime.now()
+            return [
+                self.key,
+                self.fkCartTest,
+                self.fkDUT_Type.value,
+                self.timeStamp.strftime('%Y-%m-%d %H:%M:%S'),
+                self.FreqLO,
+                self.CenterIF,
+                self.BWIF,
+                self.Pol,
+                self.PwrUSB_SrcLSB,
+                self.PwrLSB_SrcLSB,
+                self.PwrUSB_SrcUSB,
+                self.PwrLSB_SrcUSB,
+                self.Phot_LSB,
+                self.Pcold_LSB,
+                self.Phot_LSB_StdErr,
+                self.Pcold_LSB_StdErr,
+                self.Phot_USB,
+                self.Pcold_USB,
+                self.Phot_USB_StdErr,
+                self.Pcold_USB_StdErr,
+                self.TRF_Hot,
+                self.IF_Attn,
+                self.Vj1,
+                self.Ij1,
+                self.Vj2,
+                self.Ij2,
+                self.Imag,
+                self.Tmixer,
+                self.PLL_Lock_V,
+                self.PLL_Corr_V,
+                self.PLL_Assm_T,
+                self.PA_A_Drain_V,
+                self.PA_B_Drain_V,
+                self.Source_Power_USB,
+                self.Source_Power_LSB,
+                1 if self.Is_LO_Unlocked else 0,
+                1 if self.Is_RF_Unlocked else 0
+            ]
+
+    def getInsertVals(self) -> str:
         """get a string formatted for an INSERT query
         """
         if self.timeStamp is None:
