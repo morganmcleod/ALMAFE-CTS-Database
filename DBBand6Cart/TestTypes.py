@@ -13,7 +13,8 @@ class TestTypes(object):
         TestTypeIds.BEAM_PATTERN,
         TestTypeIds.PHASE_STABILITY,
         TestTypeIds.AMP_STABILITY,
-        TestTypeIds.LO_WG_INTEGRITY
+        TestTypeIds.LO_WG_INTEGRITY,
+        TestTypeIds.IV_CURVES
     )
 
     def __init__(self, connectionInfo:dict = None, driver:DriverMySQL = None):
