@@ -27,6 +27,19 @@ class MixerParams():
         :param bool latestOnly: If true, only get the most recent set, defaults to True
         :return List[MixerParam]
         """
+
+        if keyMixerChips == 0:
+            return [MixerParam(
+                key = 0,
+                fkMixerChips = 0,
+                Temperature = 4,
+                FreqLO = 0,
+                timeStamp = datetime.now(),
+                VJ = 0,
+                IJ = 0,
+                IMAG = 0
+            )]
+
         q = f"SELECT {','.join(COLUMNS)} FROM MixerParams WHERE fkMixerChips = {keyMixerChips} ORDER BY FreqLO ASC, TS DESC;"
         self.DB.execute(q)
         rows = self.DB.fetchall()
