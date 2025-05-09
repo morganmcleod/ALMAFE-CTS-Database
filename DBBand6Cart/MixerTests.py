@@ -1,6 +1,7 @@
 """ Create, Read, Update, Delete records in table DBBand6Cart.MixerTests
 """
 import configparser
+from datetime import datetime
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.MixerTest import MixerTest, COLUMNS
@@ -46,6 +47,8 @@ class MixerTests():
         # use the fkTestSystem loaded from the config file:
         if mixerTest.fkTestSystem == 0:
             mixerTest.fkTestSystem = self.defaultFkTestSystem
+        if mixerTest.timeStamp is None:
+            mixerTest.timeStamp = datetime.now()
         # make column list, skipping keyMixerTest:
         q = f"INSERT INTO MxrTests({','.join(COLUMNS[1:])}) VALUES ({mixerTest.getInsertVals()});"
         self.DB.execute(q, commit = True)

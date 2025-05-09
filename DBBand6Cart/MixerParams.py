@@ -84,7 +84,6 @@ class MixerParams():
         values = ""
         for row in mixerParams:
             row.fkMixerChips = keyChip
-            row.timeStamp = datetime.now()
             if values:
                 values += ","
             values += f"({row.getInsertVals()})"

@@ -83,7 +83,6 @@ class IVCurves():
         q = f"INSERT INTO MxrIVcurves ({','.join(COLUMNS[1:])}) VALUES "
         values = ""
         for row in points:
-            row.timeStamp = datetime.now()
             if values:
                 values += ","
             values += f"({row.getInsertVals()})"

@@ -66,7 +66,6 @@ class PreampParams():
         values = ""
         for row in preampParams:
             row.fkPreamps = fkPreamps
-            row.timeStamp = datetime.now()
             if values:
                 values += ","
             values += f"({row.getInsertVals()})"

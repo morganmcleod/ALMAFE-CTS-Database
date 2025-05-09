@@ -1,12 +1,12 @@
 """ Create, Read, Update, Delete table dbBand6Cart.CartTests records
 """    
 import configparser
+from typing import List, Optional
+from datetime import datetime
 from ALMAFE.basic.ParseTimeStamp import makeTimeStamp
 from ALMAFE.database.DriverMySQL import DriverMySQL
 from .schemas.CartTest import CartTest, COLUMNS
 from .GetLastInsertId import getLastInsertId
-from typing import List, Optional
-from datetime import datetime
 
 class CartTests(object):
     """ Create, Read, Update, Delete table dbBand6Cart.CartTests records
@@ -47,6 +47,8 @@ class CartTests(object):
         # use the fkTestSystem loaded from the config file:
         if cartTest.fkTestSystem == 0:
             cartTest.fkTestSystem = self.defaultFkTestSystem
+        if cartTest.timeStamp is None:
+            cartTest.timeStamp = datetime.now()
         # make column list, skipping keyCartTest:
         q = f"INSERT INTO CartTests({','.join(COLUMNS[1:])}) VALUES ({cartTest.getInsertVals()});"
         self.DB.execute(q, commit = True)
